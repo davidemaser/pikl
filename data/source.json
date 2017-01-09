@@ -1,0 +1,22 @@
+{
+  "features": [
+    {
+      "name": "async",
+      "lang":{
+        "en":"",
+        "fr":""
+      }
+    },
+    {"name": "helpers"},
+    {"name": "filters"},
+    {"name": "a little bit of logic"},
+    {"name": "and more"}
+  ],
+  "limits": [
+    {"name": "async"},
+    {"name": "helpers"},
+    {"name": "filters"},
+    {"name": "a little bit of logic"},
+    {"name": "and more"}
+  ]
+}
