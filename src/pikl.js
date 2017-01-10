@@ -45,14 +45,29 @@ var Pikl = {
             })
         },
         Content:function(node){
+            function checkForLabel(obj){
+                var labelObj = {},o;
+                for(o in obj){
+                    if(obj[o].indexOf('label')>-1){
+                        labelObj.label = obj[o].replace('label=','');
+                    }
+                    if(obj[o].indexOf('name')>-1){
+                        labelObj.name = obj[o].replace('name=','');
+                    }
+                }
+                if(labelObj.label !== undefined){
+                    return '<label for="'+labelObj.name+'">'+labelObj.label+'</label>';
+                }
+            }
             function genFormTag(obj,content){
-                var formObject = [];
-                var formString = '';
-                for(var o in obj){
+                var formObject,formString,root,o,f;
+                formObject = [];
+                formString = '';
+                for(o in obj){
                     formObject.push(obj[o].split('='));
                 }
-                for(var f in formObject){
-                    var root = formObject[f];
+                for(f in formObject){
+                    root = formObject[f];
                     formString += ' '+root[0]+'="'+root[1]+'"';
                 }
                 return '<form'+formString+'>'+content+'</form>';
@@ -60,34 +75,40 @@ var Pikl = {
            var appendComma = false,targetObject={},targetBinding='',targetNode,targetContent,conditional,conditionType,conditionArgument,conditionCase={},t;
             node = node || 'body';
             $('tpl').each(function(){
-                var keyString = '';
+                var keyString = '',formTagObject,formObject,itemCount,formItem,thisFormObjectType,f,o;
                 targetBinding = $(this).attr('is');
                 targetObject = pi[targetBinding];
                 targetContent = $(this).html();
                 if(targetBinding == 'form'){
-                    var formTagObject = $(this).text().replace('{@','').split('}')[0].split(',');
-                    var formObject = {};
-                    var itemCount = 1;
+                    formTagObject = $(this).text().replace('{@','').split('}')[0].split(',');
+                    formObject = {};
+                    itemCount = 1;
                     $('tpl[is="form"]').find('tpl').each(function(){
                         /*
                         collect form items within template
                          */
-                        var formItem = $(this).html().replace(/@/g,'').replace(/{/g,'').replace(/}/g,'').split(',');
+                        formItem = $(this).html().replace(/@/g,'').replace(/{/g,'').replace(/}/g,'').split(',');
                         formObject[itemCount] = formItem;
                         itemCount++;
                     });
-                    var formString = ''
-                    for(var f in formObject){
-                        var obj = formObject[f];
+                    var formString = '',obj,objFin;
+                    for(f in formObject){
+                        checkForLabel(formObject[f]);
+                        obj = formObject[f];
+                        formString += checkForLabel(obj) !== undefined ? checkForLabel(obj) : '';
                         formString += '<';
-                        var thisFormObjectType = obj[0];
-                        for(var o in obj){
-                            var objFin = obj[o].split('=');
+                        thisFormObjectType = obj[0];
+                        for(o in obj){
+                            objFin = obj[o].split('=');
                             if(objFin.length == 1){
                                 //single object like name or disabled
                                 formString += objFin[0]+' ';
                             }else{
-                                formString += objFin[0]+'="'+objFin[1]+'" ';
+                                if(objFin[0] !== 'label') {
+                                    formString += objFin[0] + '="' + objFin[1] + '" ';
+                                }else{
+
+                                }
                             }
                         }
                         formString += $.inArray(thisFormObjectType,Pikl.Form.closures) > 1 ? '</'+thisFormObjectType+'>': '/>';
