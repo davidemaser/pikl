@@ -47,7 +47,7 @@ var Pikl = {
             $('tpl').each(function(){
                 var keyString = '';
                 targetBinding = $(this).attr('is');
-                targetObject = bi[targetBinding];
+                targetObject = pi[targetBinding];
                 targetContent = $(this).html();
                 if(targetContent.indexOf('@') > -1){
                     //build condition
@@ -191,7 +191,7 @@ var Pikl = {
                 case 'times':
                     return a * c;
                     break;
-                case 'divides':
+                case 'divide':
                     return a / c;
                     break;
                 case 'plus':
