@@ -1,22 +1,38 @@
 {
   "features": [
     {
-      "name": "async",
-      "lang":{
-        "en":"",
-        "fr":""
-      }
+      "french": "language"
     },
-    {"name": "helpers"},
-    {"name": "filters"},
-    {"name": "a little bit of logic"},
-    {"name": "and more"}
+    {
+      "name": "helpers",
+      "pre": "",
+      "post": ","
+    },
+    {
+      "name": "filters"
+    },
+    {
+      "name": "a little bit of logic"
+    },
+    {
+      "name": "and more"
+    }
   ],
   "limits": [
-    {"name": "async"},
-    {"name": "helpers"},
-    {"name": "filters"},
-    {"name": "a little bit of logic"},
-    {"name": "and more"}
+    {
+      "name": "async"
+    },
+    {
+      "name": "helpers"
+    },
+    {
+      "name": "filters"
+    },
+    {
+      "name": "a little bit of logic"
+    },
+    {
+      "name": "and more"
+    }
   ]
 }
