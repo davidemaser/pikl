@@ -13,6 +13,9 @@ var Pikl = {
     },
     DateConditions:['day','month','year','hours','minutes','seconds'],
     Operators:['=','!=','>','<','<=','>='],
+    Ajax:{
+        params:['src','index','node','repeat']
+    },
     Index:{},
     Init:{
         Json:function(){
@@ -80,8 +83,6 @@ var Pikl = {
                                 }
                             }
                             break;
-                        case 'unless':
-                            break;
                         case 'calc':
                             var calcString = targetContent.replace('{@calc}','').replace('{/calc}','');
                             var calcMethod = calcString.split('{@')[1].split('}')[0];
@@ -93,6 +94,34 @@ var Pikl = {
                             var dateString = targetContent.replace('{@date}','').replace('{/date}','');
                             $('<div>' + Pikl.Assistants.Date(true) + '</div>').insertBefore($(this));
                             $(this).remove();
+                            break;
+                        case 'ajax':
+                            var _this = this;
+                            var ajaxString = targetContent.replace('{@ajax}','').replace('{/ajax}','');
+                            var ajaxParams = ajaxString.split(',');
+                            var ajaxObject = {};
+                            var returnedData = '';
+                            for(var p in ajaxParams){
+                                var param = ajaxParams[p].split('=')[0].replace('}','').replace('{','').replace('@','');
+                                var value = ajaxParams[p].split('=')[1].replace('}','').replace('{','').replace('@','');
+                                if($.inArray(param,Pikl.Ajax.params)>-1){
+                                    ajaxObject[param] = value;
+                                }
+                            }
+                            Pikl.Assistants.Ajax(ajaxObject).done(function(result) {
+                                result = ajaxObject.index !== undefined && ajaxObject.index !== '' ? result[ajaxObject.index] : result;
+                                if (ajaxObject.repeat == true || ajaxObject.repeat === 'true'){
+                                    for (var r in result) {
+                                        returnedData += ajaxObject.node !== undefined && ajaxObject.node !== '' ? result[r][ajaxObject.node] !== undefined ? result[r][ajaxObject.node]+' ' : '' : result[r]+' ';
+                                    }
+                                }
+                                $('<div>' + returnedData + '</div>').insertBefore($(_this));
+                                $(_this).remove();
+                                console.log(returnedData);
+                            }).fail(function() {
+                                console.log('could not load json data');
+                            });
+                            break;
                     }
                 }else{
                     targetNode = $(this).html().replace(/}/g,'').replace(/{/g,'').replace('#comma','');
@@ -114,6 +143,12 @@ var Pikl = {
         }
     },
     Assistants: {
+        Ajax:function(obj){
+            return $.ajax({
+                url:obj.src,
+                method:'GET'
+            });
+        },
         Date: function (string) {
             var currentData = new Date();
             var formatDate = {};
@@ -169,6 +204,6 @@ var Pikl = {
         }
     }
 };
-var $b = b = Pikl;
-var bi = Pikl.Index;
-var bij = Pikl.Init.Json();
+var $p = p = Pikl;
+var pi = Pikl.Index;
+var pij = Pikl.Init.Json();

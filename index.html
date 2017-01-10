@@ -11,6 +11,7 @@
 <tpl>{@if day = 10 and month = 1}Say this{@else}say this instead{/if}</tpl>
 <tpl>{@calc}9{@divides}10{/calc}</tpl>
 <tpl>{@date}</tpl>
+<tpl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</tpl>
 <script src="src/pikl.js"></script>
 </body>
 </html>
