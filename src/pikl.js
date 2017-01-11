@@ -16,9 +16,6 @@ var Pikl = {
     Ajax:{
         params:['src','index','node','repeat']
     },
-    Form:{
-        closures:['select','button','form']
-    },
     Index:{},
     Init:{
         Json:function(){
@@ -40,81 +37,27 @@ var Pikl = {
                     Index object, we can start searching in the
                     html for Pikl template objects
                      */
-                    Pikl.Init.Content('body','fr');
+                    p.Init.Content('body','fr');
                 }
             })
         },
         Content:function(node){
-            function checkForLabel(obj){
-                var labelObj = {},o;
-                for(o in obj){
-                    if(obj[o].indexOf('label')>-1){
-                        labelObj.label = obj[o].replace('label=','');
-                    }
-                    if(obj[o].indexOf('name')>-1){
-                        labelObj.name = obj[o].replace('name=','');
-                    }
-                }
-                if(labelObj.label !== undefined){
-                    return '<label for="'+labelObj.name+'">'+labelObj.label+'</label>';
-                }
-            }
-            function genFormTag(obj,content){
-                var formObject,formString,root,o,f;
-                formObject = [];
-                formString = '';
-                for(o in obj){
-                    formObject.push(obj[o].split('='));
-                }
-                for(f in formObject){
-                    root = formObject[f];
-                    formString += ' '+root[0]+'="'+root[1]+'"';
-                }
-                return '<form'+formString+'>'+content+'</form>';
-            }
            var appendComma = false,targetObject={},targetBinding='',targetNode,targetContent,conditional,conditionType,conditionArgument,conditionCase={},t;
             node = node || 'body';
             $('tpl').each(function(){
-                var keyString = '',formTagObject,formObject,itemCount,formItem,thisFormObjectType,f,o;
+                var keyString = '';
                 targetBinding = $(this).attr('is');
                 targetObject = pi[targetBinding];
                 targetContent = $(this).html();
                 if(targetBinding == 'form'){
-                    formTagObject = $(this).text().replace('{@','').split('}')[0].split(',');
-                    formObject = {};
-                    itemCount = 1;
-                    $('tpl[is="form"]').find('tpl').each(function(){
-                        /*
-                        collect form items within template
-                         */
-                        formItem = $(this).html().replace(/@/g,'').replace(/{/g,'').replace(/}/g,'').split(',');
-                        formObject[itemCount] = formItem;
-                        itemCount++;
-                    });
-                    var formString = '',obj,objFin;
-                    for(f in formObject){
-                        checkForLabel(formObject[f]);
-                        obj = formObject[f];
-                        formString += checkForLabel(obj) !== undefined ? checkForLabel(obj) : '';
-                        formString += '<';
-                        thisFormObjectType = obj[0];
-                        for(o in obj){
-                            objFin = obj[o].split('=');
-                            if(objFin.length == 1){
-                                //single object like name or disabled
-                                formString += objFin[0]+' ';
-                            }else{
-                                if(objFin[0] !== 'label') {
-                                    formString += objFin[0] + '="' + objFin[1] + '" ';
-                                }else{
-
-                                }
-                            }
+                    if (targetContent.indexOf('@') > -1) {
+                        conditional = targetContent.split('@')[1].split('}')[0];
+                        if(conditional == "json"){
+                            targetContent = targetContent.replace('{@json}','').replace('{/json}','');
+                            pf.Build(JSON.parse(targetContent),$(this));
+                            //buildFormFromObject(JSON.parse(targetContent),$(this));
                         }
-                        formString += $.inArray(thisFormObjectType,Pikl.Form.closures) > 1 ? '</'+thisFormObjectType+'>': '/>';
                     }
-                    $('<div>' + genFormTag(formTagObject,formString) + '</div>').insertBefore($(this));
-                    $(this).remove();
                 }else if($(this).parent().attr('is') !== 'form'){
                     if (targetContent.indexOf('@') > -1) {
                         //we have functions
@@ -125,10 +68,9 @@ var Pikl = {
                         if (targetContent.indexOf('{@else}') > -1) {
                             conditionCase.false = targetContent.replace(conditional, '').replace('{@}', '').split('{')[1].replace('@else}', '');
                         }
-                        console.log(conditionType);
                         switch (conditionType) {
                             case 'if':
-                                var dateUnit = Pikl.Assistants.Date();
+                                var dateUnit = $p.Assistants.Date();
                                 if (conditionArgument.indexOf('and') > -1) {
                                     conditionArgument = conditionArgument.split('and');
                                 }
@@ -136,8 +78,8 @@ var Pikl = {
                                     var calc = conditionArgument[c].trim();
                                     calc = calc.split(' ');
                                     for (var d in calc) {
-                                        if ($.inArray(calc[d], Pikl.DateConditions) > -1) {
-                                            if (Pikl.Assistants.Comparison(dateUnit[calc[d]], calc[1], parseInt(calc[2]))) {
+                                        if ($.inArray(calc[d], $p.DateConditions) > -1) {
+                                            if ($p.Assistants.Comparison(dateUnit[calc[d]], calc[1], parseInt(calc[2]))) {
                                                 $('<div>' + conditionCase.true + '</div>').insertBefore($(this));
                                                 $(this).remove();
                                             } else {
@@ -152,12 +94,12 @@ var Pikl = {
                                 var calcString = targetContent.replace('{@calc}', '').replace('{/calc}', '');
                                 var calcMethod = calcString.split('{@')[1].split('}')[0];
                                 var calcValues = calcString.split('{@' + calcMethod + '}');
-                                $('<div>' + Pikl.Assistants.Calculate(calcValues[0], calcMethod, calcValues[1]) + '</div>').insertBefore($(this));
+                                $('<div>' + $p.Assistants.Calculate(calcValues[0], calcMethod, calcValues[1]) + '</div>').insertBefore($(this));
                                 $(this).remove();
                                 break;
                             case 'date':
                                 var dateString = targetContent.replace('{@date}', '').replace('{/date}', '');
-                                $('<div>' + Pikl.Assistants.Date(true) + '</div>').insertBefore($(this));
+                                $('<div>' + $p.Assistants.Date(true) + '</div>').insertBefore($(this));
                                 $(this).remove();
                                 break;
                             case 'ajax':
@@ -169,11 +111,11 @@ var Pikl = {
                                 for (var p in ajaxParams) {
                                     var param = ajaxParams[p].split('=')[0].replace('}', '').replace('{', '').replace('@', '');
                                     var value = ajaxParams[p].split('=')[1].replace('}', '').replace('{', '').replace('@', '');
-                                    if ($.inArray(param, Pikl.Ajax.params) > -1) {
+                                    if ($.inArray(param, $p.Ajax.params) > -1) {
                                         ajaxObject[param] = value;
                                     }
                                 }
-                                Pikl.Assistants.Ajax(ajaxObject).done(function (result) {
+                                $p.Assistants.Ajax(ajaxObject).done(function (result) {
                                     result = ajaxObject.index !== undefined && ajaxObject.index !== '' ? result[ajaxObject.index] : result;
                                     if (ajaxObject.repeat == true || ajaxObject.repeat === 'true') {
                                         for (var r in result) {
@@ -205,6 +147,62 @@ var Pikl = {
                     }
                 }
             });
+        }
+    },
+    Form:{
+        closures:['select','input','button','textarea','form'],
+        Build:function(obj,target){
+            if(obj !== undefined && typeof obj == 'object') {
+                target = target || $('tpl[is="form"]');
+                var formTemplate = '<form name="{{name}}" action="{{action}}">{{formItems}}</form>';
+                var formObject = {};
+                $.each(obj, function (key, value) {
+                    formObject[key] = value;
+                    if (key == 'items') {
+                        formObject['items'] = value;
+                    }
+                });
+                layoutForm(formObject);
+                function layoutForm(obj) {
+                    for (var o in obj) {
+                        if (typeof obj[o] !== 'object') {
+                            formTemplate = formTemplate.replace('{{' + o + '}}', obj[o]);
+                        } else {
+                            var formItems = obj[o];
+                        }
+                    }
+                    handleFormItem(formTemplate, formItems);
+                }
+                function handleFormItem(template, obj) {
+                    var string = '';
+                    for (var o in obj) {
+                        var tempObject = obj[o];
+                        var formType = obj[o].element;
+                        if($.inArray(formType,pf.closures)>-1) {
+                            if (formType == 'input') {
+                                string += '<input type="' + obj[o].type + '" name="' + obj[o].name + '" placeholder="' + obj[o].placeholder + '" value="' + obj[o].value + '" />';
+                            } else if (formType == 'select') {
+                                string += '<select name="' + obj[o].name + '">{{options}}</select>';
+                            } else if (formType == 'button') {
+                                string += '<button name="' + obj[o].name + '">' + obj[o].value + '</button>';
+                            }
+                            for (var t in tempObject) {
+                                if (typeof tempObject[t] == 'object') {
+                                    var optionObject = tempObject[t];
+                                    var optionString = '';
+                                    for (var a in optionObject) {
+                                        optionString += '<option name="' + optionObject[a].name + '">' + optionObject[a].value + '</option>';
+                                    }
+                                }
+                            }
+                            if (optionString !== undefined && optionString !== '') {
+                                string = string.replace('{{options}}', optionString);
+                            }
+                        }
+                    }
+                    target.empty().html(template.replace('{{formItems}}', string));
+                }
+            }
         }
     },
     Assistants: {
@@ -272,3 +270,4 @@ var Pikl = {
 var $p = p = Pikl;
 var pi = Pikl.Index;
 var pij = Pikl.Init.Json();
+var pf = Pikl.Form;

@@ -12,10 +12,7 @@
 <tpl>{@calc}228{@divide}10{/calc}</tpl>
 <tpl>{@date}</tpl>
 <tpl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</tpl>
-<tpl is="form">{@name=mainForm,action=thelong.php}
-    <tpl>{@input,@type=text,@name=features,@id=user,@placeholder=true,@label=Text Here}</tpl>
-    <tpl>{@input,@type=password,@name=pass,@id=pass,@placeholder=true}</tpl>
-</tpl>
+<tpl is="form">{@json}{ "action":"action.php", "name":"myForm", "items":[ { "element":"input", "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</tpl>
 <script src="src/pikl.js"></script>
 </body>
 </html>
