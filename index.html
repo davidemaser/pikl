@@ -12,7 +12,8 @@
 <tpl>{@calc}228{@divide}10{/calc}</tpl>
 <tpl>{@date}</tpl>
 <tpl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</tpl>
-<tpl is="form">{@json}{ "action":"action.php", "name":"myForm", "items":[ { "element":"input", "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</tpl>
+<tpl is="form">{@json}{"action":"action.php", "name":"myForm", "items":[ { "element":"input", "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</tpl>
+<tpl is="form">{@json}{@src=data/demoForm.json}{/json}</tpl>
 <script src="src/pikl.js"></script>
 </body>
 </html>

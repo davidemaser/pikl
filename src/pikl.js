@@ -42,20 +42,29 @@ var Pikl = {
             })
         },
         Content:function(node){
-           var appendComma = false,targetObject={},targetBinding='',targetNode,targetContent,conditional,conditionType,conditionArgument,conditionCase={},t;
+           var appendComma = false,targetObject={},targetItem,targetBinding='',targetNode,targetContent,conditional,conditionType,conditionArgument,conditionCase={},t;
             node = node || 'body';
             $('tpl').each(function(){
                 var keyString = '';
                 targetBinding = $(this).attr('is');
                 targetObject = pi[targetBinding];
                 targetContent = $(this).html();
+                targetItem = $(this);
                 if(targetBinding == 'form'){
                     if (targetContent.indexOf('@') > -1) {
                         conditional = targetContent.split('@')[1].split('}')[0];
-                        if(conditional == "json"){
-                            targetContent = targetContent.replace('{@json}','').replace('{/json}','');
-                            pf.Build(JSON.parse(targetContent),$(this));
-                            //buildFormFromObject(JSON.parse(targetContent),$(this));
+                        if(conditional == 'json'){
+                            if(targetContent.indexOf('{@src') > -1){
+                                var jsonPath = targetContent.split('{@src=')[1].split('}')[0];
+                                $p.Assistants.Ajax(jsonPath).done(function (result) {
+                                    pf.Build(result, targetItem);
+                                }).fail(function () {
+                                    console.log('could not load json data');
+                                });
+                            }else{
+                                targetContent = targetContent.replace('{@json}', '').replace('{/json}', '');
+                                pf.Build(JSON.parse(targetContent), targetItem);
+                            }
                         }
                     }
                 }else if($(this).parent().attr('is') !== 'form'){
@@ -152,6 +161,7 @@ var Pikl = {
     Form:{
         closures:['select','input','button','textarea','form'],
         Build:function(obj,target){
+            console.log(obj,target);
             if(obj !== undefined && typeof obj == 'object') {
                 target = target || $('tpl[is="form"]');
                 var formTemplate = '<form name="{{name}}" action="{{action}}">{{formItems}}</form>';
@@ -207,8 +217,13 @@ var Pikl = {
     },
     Assistants: {
         Ajax:function(obj){
+            if(typeof obj == 'object'){
+                var jsonPath = obj.src;
+            }else{
+                jsonPath = obj;
+            }
             return $.ajax({
-                url:obj.src,
+                url:jsonPath,
                 method:'GET'
             });
         },

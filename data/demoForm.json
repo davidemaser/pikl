@@ -1,0 +1,34 @@
+{
+  "action": "action.php",
+  "name": "myForm",
+  "items": [
+    {
+      "element": "input",
+      "type": "text",
+      "name": "aName",
+      "placeholder": "aPlaceholder",
+      "value": "aValue"
+    },
+    {
+      "element": "input",
+      "type": "text",
+      "name": "anotherName",
+      "placeholder": "aPlaceholder",
+      "value": "aValue"
+    },
+    {
+      "element": "select",
+      "name": "thisName",
+      "options": [
+        {
+          "name": "hi",
+          "value": "hello"
+        },
+        {
+          "name": "bye",
+          "value": "goodbye"
+        }
+      ]
+    }
+  ]
+}
