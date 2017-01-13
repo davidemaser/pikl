@@ -14,6 +14,7 @@
 <tpl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</tpl>
 <tpl is="form">{@json}{"action":"action.php", "attributes":"class=\"this\" id=\"that\"", "name":"myForm", "items":[ { "element":"input", "event":{"handler":"click","function":"console.log('hello')"}, "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"textarea", "name":"aTextArea", "width":"20", "height":"5", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"checkbox", "name":"aCheckbox", "value":"aValue","label":"check this","checked":"true" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</tpl>
 <!--<tpl is="form">{@json}{@src=data/demoForm.json}{/json}</tpl>-->
+<tpl is="layout">--div[this is the div thing]--p*3</tpl>
 <script src="src/pikl.js"></script>
 </body>
 </html>

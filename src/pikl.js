@@ -37,7 +37,7 @@ var Pikl = {
                     Index object, we can start searching in the
                     html for Pikl template objects
                      */
-                    p.Init.Content('body','fr');
+                    $p.Init.Content('body','fr');
                 }
             })
         },
@@ -50,7 +50,32 @@ var Pikl = {
                 targetObject = pi[targetBinding];
                 targetContent = $(this).html();
                 targetItem = $(this);
-                if(targetBinding == 'form'){
+                if(targetBinding == 'layout'){
+                    var layoutObjects = targetContent.split('--');
+                    for(var l in layoutObjects){
+                        if(layoutObjects[l] !== undefined && layoutObjects[l] !== '') {
+                            if(layoutObjects[l].indexOf('[')>-1 && layoutObjects[l].indexOf(']')>-1){
+                                var nodeContent = layoutObjects[l].split('[')[1].split(']')[0];
+                                var sliceText = {};
+                                sliceText.start = layoutObjects[l].indexOf('[');
+                                sliceText.end = layoutObjects[l].indexOf(']');
+                                sliceText.content = nodeContent;
+                                var toRemove = layoutObjects[l].slice(sliceText.start,sliceText.end+1);
+                                var cleanObject = layoutObjects[l].replace(toRemove,'');
+                                console.log(sliceText.content,cleanObject);
+                            }else{
+                                cleanObject = layoutObjects[l];
+                            }
+                            if(layoutObjects[l].indexOf('*')>-1){
+                                $($p.Assistants.TagBuilder(cleanObject.split('*')[0],cleanObject.split('*')[1]),sliceText.content).insertBefore($(this));
+                                $(this).remove();
+                            }else{
+                                $($p.Assistants.TagBuilder(cleanObject,null,sliceText.content)).insertBefore($(this));
+                            }
+
+                        }
+                    }
+                }else if(targetBinding == 'form'){
                     if (targetContent.indexOf('@') > -1) {
                         conditional = targetContent.split('@')[1].split('}')[0];
                         if(conditional == 'json'){
@@ -315,6 +340,31 @@ var Pikl = {
                     });
                 }
             }
+        },
+        TagBuilder:function(tag,multiplier,content){
+            var s = {};
+            s.div = {tag:'<div>',close:true};
+            s.br = {tag:'<br />',close:false};
+            s.p = {tag:'<p>',close:true};
+            s.i = {tag:'<i>',close:true};
+            s.b = {tag:'<strong>',close:true};
+            s.nav = {tag:'<nav>',close:true};
+
+            var tagDisplay = s[tag].tag;
+            if(s[tag].close == true) {
+                var closure = tagDisplay.replace('<','</');
+                tagDisplay += content !== undefined && content !== null ? content : '' ;
+                tagDisplay += closure;
+            }
+            if(multiplier !== undefined && multiplier !== null){
+                var tagOutput = '';
+                for(var i = 0;i<multiplier;i++){
+                    tagOutput += tagDisplay;
+                }
+            }else{
+                tagOutput = tagDisplay;
+            }
+            return tagOutput;
         }
     }
 };
