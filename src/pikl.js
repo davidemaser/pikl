@@ -164,7 +164,7 @@ var Pikl = {
             console.log(obj,target);
             if(obj !== undefined && typeof obj == 'object') {
                 target = target || $('tpl[is="form"]');
-                var formTemplate = '<form name="{{name}}" action="{{action}}">{{formItems}}</form>';
+                var formTemplate = '<form {{attributes}} name="{{name}}" action="{{action}}">{{formItems}}</form>';
                 var formObject = {};
                 $.each(obj, function (key, value) {
                     formObject[key] = value;
@@ -185,16 +185,40 @@ var Pikl = {
                 }
                 function handleFormItem(template, obj) {
                     var string = '';
+                    var events = {};
                     for (var o in obj) {
                         var tempObject = obj[o];
                         var formType = obj[o].element;
+                        var formItemID = obj[o].id !== undefined && obj[o].id !== '' ? ' id="'+obj[o].id+'"': '' ;
+                        var formItemClass = obj[o].class !== undefined && obj[o].class !== '' ? ' class="'+obj[o].class+'"': '' ;
                         if($.inArray(formType,pf.closures)>-1) {
+                            if(obj[o].event !== undefined && typeof obj[o].event == 'object'){
+                                events[obj[o].name] = obj[o].event;
+                            }
+                            string += obj[o].label !== undefined && obj[o].label !== '' ? '<label for="'+obj[o].name+'">'+obj[o].label+'</label>' : '';
                             if (formType == 'input') {
-                                string += '<input type="' + obj[o].type + '" name="' + obj[o].name + '" placeholder="' + obj[o].placeholder + '" value="' + obj[o].value + '" />';
+                                string += '<input';
+                                string += formItemID+formItemClass;
+                                string += ' type="' + obj[o].type + '" name="' + obj[o].name + '"';
+                                string += obj[o].placeholder !== undefined && obj[o].placeholder !== '' ? ' placeholder="' + obj[o].placeholder + '"' : '';
+                                string += obj[o].value !== undefined && obj[o].value !== '' ? ' value="' + obj[o].value + '"' : '';
+                                string += obj[o].checked !== undefined && obj[o].checked !== '' && obj[o].checked == 'true' ? ' checked' : '';
+                                string += '/>';
                             } else if (formType == 'select') {
-                                string += '<select name="' + obj[o].name + '">{{options}}</select>';
+                                string += '<select';
+                                string += formItemID+formItemClass;
+                                string += ' name="' + obj[o].name + '">{{options}}</select>';
                             } else if (formType == 'button') {
-                                string += '<button name="' + obj[o].name + '">' + obj[o].value + '</button>';
+                                string += '<button';
+                                string += formItemID+formItemClass;
+                                string += ' name="' + obj[o].name + '">' + obj[o].value + '</button>';
+                            }else if (formType == 'textarea') {
+                                string += '<textarea';
+                                string += formItemID+formItemClass;
+                                string += ' name="' + obj[o].name + '"';
+                                string += obj[o].width !== undefined && obj[o].width !== '' ? ' width="'+obj[o].width+'"' : '';
+                                string += obj[o].height !== undefined && obj[o].height !== '' ? ' height="'+obj[o].height+'"' : '';
+                                string += '>' + obj[o].value + '</textarea>';
                             }
                             for (var t in tempObject) {
                                 if (typeof tempObject[t] == 'object') {
@@ -210,7 +234,10 @@ var Pikl = {
                             }
                         }
                     }
-                    target.empty().html(template.replace('{{formItems}}', string));
+                    template = template.indexOf('{{attributes}}') > -1 ? template.replace('{{attributes}}', '') : template;
+                    $(template.replace('{{formItems}}', string)).insertBefore(target);
+                    $(target).remove();
+                    $p.Assistants.RegisterEvents(events);
                 }
             }
         }
@@ -278,6 +305,15 @@ var Pikl = {
                 default:
                     return '';
                 break;
+            }
+        },
+        RegisterEvents: function(obj){
+            if(typeof obj == 'object'){
+                for(var o in obj){
+                    $('body').on(obj[o].handler,'[name="'+o+'"]',function(){
+                        eval(obj[o].function);
+                    });
+                }
             }
         }
     }
