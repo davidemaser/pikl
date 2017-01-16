@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" use="json" src="data/source.json">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-<tpl is="features">{french}</tpl>
-<tpl is="limits">{name}{#comma}</tpl>
+<tpl is="data" bind="features">{french}</tpl>
+<tpl is="data" bind="limits">{name}{#comma}</tpl>
 <tpl>{@if day = 10 and month = 1}Say this{@else}say this instead{/if}</tpl>
 <tpl>{@calc}228{@divide}10{/calc}</tpl>
 <tpl>{@date}</tpl>
 <tpl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</tpl>
 <tpl is="form">{@json}{"action":"action.php", "attributes":"class=\"this\" id=\"that\"", "name":"myForm", "items":[ { "element":"input", "event":{"handler":"click","function":"console.log('hello')"}, "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"textarea", "name":"aTextArea", "width":"20", "height":"5", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"checkbox", "name":"aCheckbox", "value":"aValue","label":"check this","checked":"true" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</tpl>
-<!--<tpl is="form">{@json}{@src=data/demoForm.json}{/json}</tpl>-->
+<!--
+this method gets the data from an external JSON file
+<tpl is="form">{@json}{@src=data/demoForm.json}{/json}</tpl>
+-->
 <tpl is="layout">--div[this is the div thing]--p[this is,that is,this is not]*3
     --section[here I would put my content]</tpl>
+<tpl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</tpl>
 <script src="src/pikl.js"></script>
 </body>
 </html>

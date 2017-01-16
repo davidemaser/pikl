@@ -25,17 +25,27 @@ var Pikl = {
     DateConditions:['day','month','year','hours','minutes','seconds'],
     Operators:['=','!=','>','<','<=','>='],
     Ajax:{
-        params:['src','index','node','repeat']
+        params:['src','index','node','repeat'],
+        default:'data/source.json'
     },
     Index:{},
     Init:{
         Json:function(){
+            var useFormat = $('html').attr('use');
+            var useSource = $('html').attr('src');
+            if(useFormat !== undefined && useFormat == 'json'){
+                if(useSource !== undefined && useSource !== ''){
+                    var ajaxCallUrl = useSource || $p.Ajax.default;
+                }else{
+                    ajaxCallUrl = $p.Ajax.default;
+                }
+            }
             /*
             find all json nodes form the source file and
             place them in a global object
              */
             $.ajax({
-                url:'data/source.json',
+                url:ajaxCallUrl,
                 method:'GET',
                 success:function(data){
                     $.each(data,function(key,value){
@@ -48,21 +58,25 @@ var Pikl = {
                     Index object, we can start searching in the
                     html for Pikl template objects
                      */
-                    $p.Init.Content('body','fr');
+                    $.when($p.Init.Content('body','fr')).done(function(){
+                        console.log('page is up')
+                    });
                 }
             })
         },
         Content:function(node){
-            var appendComma = false, targetObject = {}, targetItem, targetBinding = '', targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
-                calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value,
+            var appendComma = false, targetObject = {}, targetItem, targetBinding,targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
+                calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, tag,
                 c, d, l, p, t, r;
             node = node || 'body';
             $('tpl').each(function(){
                 keyString = '';
                 targetBinding = $(this).attr('is');
-                targetObject = pi[targetBinding];
+                targetDataBinding = $(this).attr('bind');
+                targetObject = pi[targetDataBinding];
                 targetContent = $(this).html();
                 targetItem = $(this);
+                tag = $p.Config.defaults.tplTag.replacement;
                 if(targetBinding == 'layout'){
                     layoutObjects = targetContent.split('--');
                     objectIndex = 0;
@@ -97,6 +111,10 @@ var Pikl = {
                             $(this).remove();
                         }
                     }
+                }else if(targetBinding == 'list'){
+                    $($p.Assistants.BuildList(targetContent)).insertBefore($(this));
+                    $(this).remove();
+
                 }else if(targetBinding == 'form'){
                     if (targetContent.indexOf('@') > -1) {
                         conditional = targetContent.split('@')[1].split('}')[0];
@@ -114,8 +132,22 @@ var Pikl = {
                             }
                         }
                     }
+                } else if(targetBinding == 'data') {
+                    targetNode = $(this).html().replace(/}/g, '').replace(/{/g, '').replace('#comma', '');
+                    appendComma = $(this).html().indexOf('{#comma}') > -1;
+                    if (typeof targetObject == 'object') {
+                        for (t in targetObject) {
+                            keyString += targetObject[t][targetNode] !== undefined ? targetObject[t][targetNode] : ' ';
+                            if (appendComma) {
+                                keyString += ', ';
+                            }
+                        }
+                    }
+                    keyString = keyString.trim();
+                    keyString = keyString.slice(-1) == ',' ? keyString.substring(0, keyString.length - 1) : keyString;
+                    $('<'+tag+'>' + keyString + '</'+tag+'>').insertBefore($(this));
+                    $(this).remove();
                 }else if($(this).parent().attr('is') !== 'form'){
-                    var tag = $p.Config.defaults.tplTag.replacement;
                     if (targetContent.indexOf('@') > -1) {
                         //we have functions
                         conditional = targetContent.split('@')[1].split('}')[0];
@@ -186,21 +218,6 @@ var Pikl = {
                                 });
                                 break;
                         }
-                    } else {
-                        targetNode = $(this).html().replace(/}/g, '').replace(/{/g, '').replace('#comma', '');
-                        appendComma = $(this).html().indexOf('{#comma}') > -1;
-                        if (typeof targetObject == 'object') {
-                            for (t in targetObject) {
-                                keyString += targetObject[t][targetNode] !== undefined ? targetObject[t][targetNode] : ' ';
-                                if (appendComma) {
-                                    keyString += ', ';
-                                }
-                            }
-                        }
-                        keyString = keyString.trim();
-                        keyString = keyString.slice(-1) == ',' ? keyString.substring(0, keyString.length - 1) : keyString;
-                        $('<'+tag+'>' + keyString + '</'+tag+'>').insertBefore($(this));
-                        $(this).remove();
                     }
                 }
             });
@@ -300,6 +317,42 @@ var Pikl = {
                 url:jsonPath,
                 method:'GET'
             });
+        },
+        BuildLink:function(params,text){
+            var linkTemplate ='<a href="{{url}}" target="{{target}}">{{content}}</a>',filteredParams = {};
+            filteredParams.url = params.indexOf('url=') > -1 ? params.split('url="')[1].split('"')[0] : null;
+            filteredParams.target = params.indexOf('target=') > -1 ? params.split('target="')[1].split('"')[0] : null;
+            linkTemplate = filteredParams.url !== null && filteredParams.url !== '' ? linkTemplate.replace('{{url}}',filteredParams.url) : linkTemplate.replace(' href="{{url}}"','');
+            linkTemplate = filteredParams.target !== null && filteredParams.target !== '' ? linkTemplate.replace('{{target}}',filteredParams.target) : linkTemplate.replace(' target="{{target}}"','');
+            linkTemplate = text !== undefined && text !== '' ? linkTemplate.replace('{{content}}',text) : '';
+            return linkTemplate;
+        },
+        BuildList:function(content){
+            var filteredContent = {},contentParams,itemMain,itemList,itemArray,itemString='',listTemplate;
+            contentParams = content.split('{@')[1].split('}')[0];
+            filteredContent.name = contentParams.indexOf('name') > -1 ? contentParams.split('name="')[1].split('"')[0] : null;
+            filteredContent.class = contentParams.indexOf('class') > -1 ? contentParams.split('class="')[1].split('"')[0] : null;
+            filteredContent.id = contentParams.indexOf('id') > -1 ? contentParams.split('id="')[1].split('"')[0] : null;
+            itemMain = content.replace('{/item}{@item}',',');
+            itemList = itemMain.split('{@item}')[1].split('{/item}')[0];
+            itemArray = itemList.split(',');
+            listTemplate = '<ul class="{{class}}" name="{{name}}" id="{{id}}">{{listItems}}</ul>';
+            listTemplate = filteredContent.name !== null && filteredContent.name !== '' ? listTemplate.replace('{{name}}',filteredContent.name) : listTemplate.replace(' name="{{name}}"','');
+            listTemplate = filteredContent.id !== null && filteredContent.id !== '' ? listTemplate.replace('{{id}}',filteredContent.id) : listTemplate.replace(' id="{{id}}"','');
+            listTemplate = filteredContent.class !== null && filteredContent.class !== '' ? listTemplate.replace('{{class}}',filteredContent.class) : listTemplate.replace(' class="{{class}}"','');
+            for(var a in itemArray){
+                itemString += '<li>';
+                if(itemArray[a].indexOf('{#link') > -1){
+                    var linkParams = itemArray[a].split('{#link')[1].split('}')[0];
+                    var linkText = itemArray[a].split('{#link')[1].split('}')[1].split('{/link')[0];
+                    itemString += $p.Assistants.BuildLink(linkParams,linkText);
+                }else {
+                    itemString += itemArray[a];
+                }
+                itemString += '</li>';
+            }
+            var builtList = listTemplate.replace('{{listItems}}',itemString);
+            return builtList;
         },
         Date: function (string) {
             var currentData = new Date();
