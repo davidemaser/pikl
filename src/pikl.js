@@ -31,8 +31,8 @@ var Pikl = {
     Index:{},
     Init:{
         Json:function(){
-            var useFormat = $('html').attr('use');
-            var useSource = $('html').attr('src');
+            var useFormat = $('html').attr('pkl-use');
+            var useSource = $('html').attr('pkl-src');
             if(useFormat !== undefined && useFormat == 'json'){
                 if(useSource !== undefined && useSource !== ''){
                     var ajaxCallUrl = useSource || $p.Ajax.default;
@@ -69,7 +69,7 @@ var Pikl = {
                 calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, tag,
                 c, d, l, p, t, r;
             node = node || 'body';
-            $('tpl').each(function(){
+            $('pkl').each(function(){
                 keyString = '';
                 targetBinding = $(this).attr('is');
                 targetDataBinding = $(this).attr('bind');
@@ -227,7 +227,7 @@ var Pikl = {
         closures:['select','input','button','textarea','form'],
         Build:function(obj,target){
             if(obj !== undefined && typeof obj == 'object') {
-                target = target || $('tpl[is="form"]');
+                target = target || $('pkl[is="form"]');
                 var formTemplate = '<form {{attributes}} name="{{name}}" action="{{action}}">{{formItems}}</form>';
                 var formObject = {};
                 $.each(obj, function (key, value) {
