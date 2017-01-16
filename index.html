@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="node_modules/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
 <pkl is="data" bind="features">{french}</pkl>
@@ -17,9 +16,10 @@
 this method gets the data from an external JSON file
 <pkl is="form">{@json}{@src=data/demoForm.json}{/json}</pkl>
 -->
+<pkl is="component">{@header cols=3,split=//}this is text{/header}</pkl>
 <pkl is="layout">--div[this is the div thing]--p[this is,that is,this is not]*3
     --section[here I would put my content]</pkl>
 <pkl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pkl>
-<script src="src/pikl.js"></script>
+<script src="dist/js/pikl.min.js"></script>
 </body>
 </html>

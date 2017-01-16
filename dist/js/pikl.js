@@ -1,6 +1,4 @@
-/**
- * Created by altitude on 09/01/17.
- */
+/*! pikl - v0.1.0 - 2017-01-16*/
 var Pikl = {
     Config: {
         defaults:{
@@ -31,9 +29,6 @@ var Pikl = {
     },
     Index:{},
     Init:{
-        PiklWrapper:function(){
-            $('body').contents().wrapAll('<div pikl="true" class="dill no-show">');
-        },
         Json:function(){
             var useFormat = $('html').attr('pkl-use');
             var useSource = $('html').attr('pkl-src');
@@ -62,9 +57,7 @@ var Pikl = {
                     Index object, we can start searching in the
                     html for Pikl template objects
                      */
-                    $.when($p.Init.PiklWrapper()).done(function(){
-                        $p.Init.Content('[pikl="true"]','fr')
-                    }).done(function(){
+                    $.when($p.Init.Content('body','fr')).done(function(){
                         console.log('page is up')
                     });
                 }
@@ -74,7 +67,7 @@ var Pikl = {
             var appendComma = false, targetObject = {}, targetItem, targetBinding,targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
                 calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, tag,
                 c, d, l, p, t, r;
-            node = node || '[pikl="true"]';
+            node = node || 'body';
             $('pkl').each(function(){
                 keyString = '';
                 targetBinding = $(this).attr('is');
@@ -84,20 +77,6 @@ var Pikl = {
                 targetItem = $(this);
                 tag = $p.Config.defaults.tplTag.replacement;
                 switch(targetBinding) {
-                    case 'component':
-                        var componentType,componentParams,componentParams,componentParamsObj,componentText,p,paramArray;
-                        componentType = targetContent.split('{@')[1].split(' ')[0];
-                        componentParams = targetContent.split('{@')[1].split(' ')[1].split('}')[0].split(',');
-                        componentParamsObj = {};
-                        componentText = targetContent.split('}')[1].split('{')[0];
-                        for(p in componentParams){
-                            if(componentParams.hasOwnProperty(p)){
-                                paramArray = componentParams[p].split('=');
-                                componentParamsObj[paramArray[0]] = paramArray[1];
-                            }
-                        }
-                        $p.Components.Route(componentType,componentParamsObj,componentText);
-                        break;
                     case 'layout':
                         layoutObjects = targetContent.split('--');
                         objectIndex = 0;
@@ -491,37 +470,9 @@ var Pikl = {
         }
     },
     Components:{
-        Store:{},
-        SplitContent:function(obj){
-            if(obj.cols !== undefined && obj.cols !== 1){
-                 if(obj.split !== undefined && obj.split !== ''){
-                     if(obj.text.indexOf(obj.split)){
-                         //we can start splitting
-                         console.log(obj,obj.text.length);
-                     }
-                 }
-            }
-        },
-        Route:function(obj,params,text){
-            $p.Components.Store[obj] = {};
-            $p.Components.Store[obj]['param'] = params;
-            $p.Components.Store[obj]['text'] = text;
-            switch(obj){
-                case 'header':
-                    this.Header();
-                    break;
-            }
-        },
         Header:function(){
-            var _this = $p.Components.Store.header;
-            _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.simple = '<header>{{content}}</header>';
-            template.columns = {};
-            template.columns.two = '<header><div class="header_column">{{content @split:2}}</div></header>';
-            template.columns.three = '<header><div class="header_column">{{content @split:3}}</div></header>';
-            template.columns.four = '<header><div class="header_column">{{content @split:4}}</div></header>';
-            //console.log($p.Components.Store);
         },
         Footer:function(){
             var template = {};
@@ -530,6 +481,7 @@ var Pikl = {
             template.columns.two = '<footer><div class="footer_column">{{content @split:2}}</div></footer>';
             template.columns.three = '<footer><div class="footer_column">{{content @split:3}}</div></footer>';
             template.columns.four = '<footer><div class="footer_column">{{content @split:4}}</div></footer>';
+
         },
         Gutter:function(){
             var template = {};
