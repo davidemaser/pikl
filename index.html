@@ -8,8 +8,8 @@
 <body>
 <pkl is="data" bind="features">{french}</pkl>
 <pkl is="data" bind="limits">{name}{#comma}</pkl>
-<pkl>{@if day = 10 and month = 1}Say this{@else}say this instead{/if}</pkl>
 <pkl>{@calc}228{@divide}10{/calc}</pkl>
+<pkl>{@if day = 10 and month = 1}Say this{@else}say this instead{/if}</pkl>
 <pkl>{@date}</pkl>
 <pkl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</pkl>
 <pkl is="form">{@json}{"action":"action.php", "attributes":"class=\"this\" id=\"that\"", "name":"myForm", "items":[ { "element":"input", "event":{"handler":"click","function":"console.log('hello')"}, "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"textarea", "name":"aTextArea", "width":"20", "height":"5", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"checkbox", "name":"aCheckbox", "value":"aValue","label":"check this","checked":"true" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</pkl>
