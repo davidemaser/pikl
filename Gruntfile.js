@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                     allowEmpty:true
                 },
                 files: {
-                    src: ['**.js','**.scss','**.css','**.json']
+                    src: ['Gruntfile.js','README.md','package.json','index.html','src/pikl.js','src/css/pikl.scss','dist/js/pikl.js','dist/js/pikl.min.js','dist/css/pikl.css','dist/css/pikl.min.css','data/*.json']
                 }
             }
         },
@@ -95,5 +95,6 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('default', ['concat','sass','cssmin','uglify','clean','gitcommit','gitpush','watch']);
+    grunt.registerTask('git', ['gitcommit','gitpush']);
     grunt.registerTask('build', ['concat','sass','cssmin','uglify','clean']);
 };
