@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                     allowEmpty:true
                 },
                 files: {
-                    // Specify the files you want to commit
+                    src: ['src/pikl.js','Gruntfile.js']
                 }
             }
         }
