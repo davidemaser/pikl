@@ -337,9 +337,11 @@ var Pikl = {
     },
     Events: {
         FadeOutOnClick: function (obj) {
-            //{handler:'click',item:'',target:''}
+            //{handler:'click',item:'',target:'',speed:500}
             $('body').on(obj.handler, obj.item, function () {
-                pa.FadeOutObject(obj.target, 500);
+                $(obj.target).animate({opacity: 0}, obj.speed, function () {
+                    $(this).remove();
+                });
             });
         }
     },
@@ -501,11 +503,6 @@ var Pikl = {
                 }
             }
             return tagOutput;
-        },
-        FadeOutObject: function (obj, speed) {
-            $(obj).animate({opacity: 0}, speed, function () {
-                $(obj).remove();
-            });
         }
     },
     Components:{
@@ -727,7 +724,7 @@ var Pikl = {
                         _target.remove();
                         console.log(modalString)
                     }
-                    _this.BindFunctions();
+                    $p.Events.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
                 }else {
                     $p.Flash.Error();
                 }
@@ -738,13 +735,6 @@ var Pikl = {
                 }else{
                     $('[pikl-component*="modal"]').remove();
                 }
-            },
-            BindFunctions:function(){
-                $p.Events.FadeOutOnClick({
-                    handler:'click',
-                    item:'button[pikl-type="refuse"]',
-                    target:$(this).parent().parent().parent()
-                });
             }
         }
     },
