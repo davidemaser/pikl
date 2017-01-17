@@ -633,6 +633,7 @@ var Pikl = {
             },
             Create:function(obj){
                 var _this = $p.Components.Modal;
+                var _target = $p.Components.Store['modal']['target'];
                 /*
                 format
                 {
@@ -684,6 +685,8 @@ var Pikl = {
                             }else{
                             }
                         }
+                        $(modalString).insertBefore(_target);
+                        _target.remove();
                         console.log(modalString)
                     } else {
                         //build modal from store data
