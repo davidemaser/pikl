@@ -726,8 +726,15 @@ var Pikl = {
                 }
             },
             BindFunctions:function(){
+                function fadeOutObject(obj){
+                    $(obj).animate({opacity:0},400);
+                }
                 $('body').on('click','button[pikl-type="refuse"]',function(){
-                    $(this).parent().parent().parent().remove();
+                    var _button = $(this);
+                    $.when(fadeOutObject(_button)).done(function(){
+                        $(_button).parent().parent().parent().remove();
+                    })
+
                 })
             }
         }
