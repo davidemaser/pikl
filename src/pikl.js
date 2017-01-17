@@ -657,14 +657,14 @@ var Pikl = {
                  */
                 if(obj !== undefined && typeof obj == 'object') {
                     var modalName = obj.name;
+                    var buttonString = '';
+                    var modalString = this.Structure.default.replace('{{name}}',modalName);
                     if (_this.Store[modalName] == undefined) {
                         _this.Store[modalName] = {};
                         /*
                         store the modal in the parent object so that
                         it can be recalled by name later.
                          */
-                        var buttonString = '';
-                        var modalString = this.Structure.default.replace('{{name}}',modalName);
                         for(var o in obj){
                             _this.Store[modalName][o] = obj[o];
                             if(typeof obj[o] == 'object'){
@@ -689,6 +689,28 @@ var Pikl = {
                         console.log(modalString)
                     } else {
                         //build modal from store data
+                        obj = _this.Store[modalName];
+                        for(var o in obj){
+                            if(typeof obj[o] == 'object'){
+                                var subObj = obj[o];
+                                for(var s in subObj){
+                                    if(typeof subObj[s] !== 'object'){
+                                        modalString = modalString.replace('{{'+s+'}}',subObj[s]);
+                                    }else{
+                                        // it's an object so it's going to be the buttons
+                                        var buttons = subObj[s];
+                                        for(var b in buttons){
+                                            buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
+                                        }
+                                    }
+                                }
+                                modalString = modalString.replace('{{buttons}}',buttonString)
+                            }else{
+                            }
+                        }
+                        $(modalString).insertBefore(_target);
+                        _target.remove();
+                        console.log(modalString)
                     }
                 }else {
                     $p.Flash.Error();
