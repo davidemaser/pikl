@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                     allowEmpty:true
                 },
                 files: {
-                    src: ['**.js']
+                    src: ['**.js','**.scss','**.css','**.json']
                 }
             }
         },
