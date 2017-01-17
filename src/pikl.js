@@ -335,7 +335,7 @@ var Pikl = {
             }
         }
     },
-    Events: {
+    Animations: {
         FadeOutOnClick: function (obj) {
             //{handler:'click',item:'',target:'',speed:500}
             $('body').on(obj.handler, obj.item, function () {
@@ -724,7 +724,7 @@ var Pikl = {
                         _target.remove();
                         console.log(modalString)
                     }
-                    $p.Events.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
+                    pan.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
                 }else {
                     $p.Flash.Error();
                 }
@@ -758,3 +758,4 @@ var pi = Pikl.Index;
 var pij = Pikl.Init.Json();
 var pa = Pikl.Assistants;
 var pf = Pikl.Form;
+var pan = Pikl.Animations;
