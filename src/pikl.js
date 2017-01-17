@@ -335,6 +335,14 @@ var Pikl = {
             }
         }
     },
+    Events: {
+        FadeOutOnClick: function (obj) {
+            //{handler:'click',item:'',target:''}
+            $('body').on(obj.handler, obj.item, function () {
+                pa.FadeOutObject(obj.target, 500);
+            });
+        }
+    },
     Assistants: {
         Ajax:function(obj){
             if(typeof obj == 'object'){
@@ -461,6 +469,7 @@ var Pikl = {
                 }
             }
         },
+
         TagBuilder:function(tag,multiplier,content){
             var s = {};
             s.div = {tag:'<div>',close:true};
@@ -731,10 +740,11 @@ var Pikl = {
                 }
             },
             BindFunctions:function(){
-                $('body').on('click','button[pikl-type="refuse"]',function(){
-                    var _element = $(this).parent().parent().parent();
-                    pa.FadeOutObject(_element,500);
-                })
+                $p.Events.FadeOutOnClick({
+                    handler:'click',
+                    item:'button[pikl-type="refuse"]',
+                    target:$(this).parent().parent().parent()
+                });
             }
         }
     },
