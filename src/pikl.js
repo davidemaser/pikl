@@ -65,7 +65,7 @@ var Pikl = {
                     $.when($p.Init.PiklWrapper()).done(function(){
                         $p.Init.Content('[pikl="true"]','fr')
                     }).done(function(){
-                        console.log('page is up')
+                        console.log('pikl is running');
                     });
                 }
             });
@@ -564,7 +564,6 @@ var Pikl = {
                 var compactString = template.parent.replace('{{content}}',childString);
                 $(compactString).insertBefore(_this.target);
                 _this.target.remove();
-                console.log(compactString);
             }
         },
         Footer:function(){

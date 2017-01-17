@@ -1,0 +1,13 @@
+[pikl-component="modal __default"] {
+  div{
+
+  }
+  button{
+    &[pikl-type="confirm"]{
+      background: #00ff83;
+    }
+    &[pikl-type="refuse"]{
+      background: #dd192b;
+    }
+  }
+}

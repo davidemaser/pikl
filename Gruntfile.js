@@ -36,7 +36,7 @@ module.exports = function (grunt) {
                     style:'compressed'
                 },
                 files: {
-                    'dist/css/app.css': 'sources/scss/<%= pkg.name %>.scss'
+                    'dist/css/<%= pkg.name %>.css': 'src/css/<%= pkg.name %>.scss'
                 }
             }
         },
@@ -75,6 +75,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-sass');
 
     // Default task.
-    grunt.registerTask('default', ['concat'/*,'sass','cssmin'*/,'uglify','clean','watch']);
-    grunt.registerTask('build', ['concat','uglify','clean']);
+    grunt.registerTask('default', ['concat','sass','cssmin','uglify','clean','watch']);
+    grunt.registerTask('build', ['concat','sass','cssmin','uglify','clean']);
 };
