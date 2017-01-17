@@ -492,6 +492,11 @@ var Pikl = {
                 }
             }
             return tagOutput;
+        },
+        FadeOutObject: function (obj, speed) {
+            $(obj).animate({opacity: 0}, speed, function () {
+                $(obj).remove();
+            });
         }
     },
     Components:{
@@ -726,14 +731,9 @@ var Pikl = {
                 }
             },
             BindFunctions:function(){
-                function fadeOutObject(obj){
-                    $(obj).animate({opacity:0},1000,function(){
-                        $(obj).remove();
-                    });
-                }
                 $('body').on('click','button[pikl-type="refuse"]',function(){
                     var _element = $(this).parent().parent().parent();
-                    fadeOutObject(_element)
+                    pa.FadeOutObject(_element,500);
                 })
             }
         }
