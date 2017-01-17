@@ -726,7 +726,7 @@ var Pikl = {
                 }
             },
             BindFunctions:function(){
-                $('body').on('click','[button pikl-type="refuse"]',function(){
+                $('body').on('click','button[pikl-type="refuse"]',function(){
                     $(this).parent().parent().parent().remove();
                 })
             }
