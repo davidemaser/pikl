@@ -628,7 +628,7 @@ var Pikl = {
         Modal:{
             Store:{},
             Structure:{
-                default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div><div class="pikl modal__title">{{title}}</div><div class="pikl modal__body">{{body}}</div><div class="pikl modal__buttons">{{buttons}}</div></div></div>'
+                default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div class="pikl modal__container"><div class="pikl modal__title">{{title}}</div><div class="pikl modal__body">{{body}}</div><div class="pikl modal__buttons">{{buttons}}</div></div></div>'
             },
             Create:function(obj){
                 var _this = $p.Components.Modal;
