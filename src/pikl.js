@@ -32,7 +32,7 @@ var Pikl = {
     Index:{},
     Init:{
         PiklWrapper:function(){
-            $('body').contents().wrapAll('<div pikl="true" class="dill no-show">');
+            $('body').contents().wrapAll('<div class="dill">');
         },
         Json:function(){
             var useFormat = $('html').attr('pkl-use');
