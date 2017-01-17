@@ -96,7 +96,7 @@ var Pikl = {
                                 componentParamsObj[paramArray[0]] = paramArray[1];
                             }
                         }
-                        $p.Components.Route(componentType,componentParamsObj,componentText);
+                        $p.Components.Route(componentType,componentParamsObj,componentText,$(this));
                         break;
                     case 'layout':
                         layoutObjects = targetContent.split('--');
@@ -520,10 +520,11 @@ var Pikl = {
                 }
             }
         },
-        Route:function(obj,params,text){
+        Route:function(obj,params,text,target){
             $p.Components.Store[obj] = {};
             $p.Components.Store[obj]['param'] = params;
             $p.Components.Store[obj]['text'] = text;
+            $p.Components.Store[obj]['target'] = target;
             switch(obj){
                 case 'header':
                     this.Header();
@@ -553,12 +554,14 @@ var Pikl = {
                         childString += template.columns.multiple.replace('{{content}}',content[c]);
                     }
                 }
-                var compactString = template.parent.replace('{{content}}',childString)
+                var compactString = template.parent.replace('{{content}}',childString);
+                $(compactString).insertBefore(_this.target);
+                _this.target.remove();
                 console.log(compactString);
             }
         },
         Footer:function(){
-            var _this = $p.Components.Store.header;
+            var _this = $p.Components.Store.footer;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<footer>{{content}}</footer>';
@@ -572,11 +575,13 @@ var Pikl = {
                     }
                 }
                 var compactString = template.parent.replace('{{content}}',childString);
+                $(compactString).insertBefore(_this.target);
+                _this.target.remove();
                 console.log(compactString);
             }
         },
         Gutter:function(){
-            var _this = $p.Components.Store.header;
+            var _this = $p.Components.Store.gutter;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<div role="menu">{{content}}</div>';
@@ -594,7 +599,7 @@ var Pikl = {
             }
         },
         Navigation:function(){
-            var _this = $p.Components.Store.header;
+            var _this = $p.Components.Store.navigation;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<nav>{{content}}</nav>';
