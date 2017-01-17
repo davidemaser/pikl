@@ -618,10 +618,93 @@ var Pikl = {
             function buildNavHierarchy(obj){
 
             }
+        },
+        Modal:{
+            Store:{},
+            Structure:{
+                default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div><div>{{title}}</div><div>{{body}}</div><div>{{buttons}}</div></div></div>'
+            },
+            Create:function(obj){
+                var _this = $p.Components.Modal;
+                /*
+                format
+                {
+                    name:'modal_name',
+                    components:{
+                        title:'My Title',
+                        body:'Body text. Can contain HTML',
+                        buttons:[
+                            {
+                                label:'I accept',
+                                type:'confirm',
+                                event:''
+                            },
+                             {
+                                 label:'I refuse',
+                                 type:'refuse',
+                                 event:''
+                             }
+                        ]
+                    }
+                }
+                 */
+                if(obj !== undefined && typeof obj == 'object') {
+                    var modalName = obj.name;
+                    if (_this.Store[modalName] == undefined) {
+                        _this.Store[modalName] = {};
+                        /*
+                        store the modal in the parent object so that
+                        it can be recalled by name later.
+                         */
+                        var buttonString = '';
+                        var modalString = this.Structure.default.replace('{{name}}',modalName);
+                        for(var o in obj){
+                            _this.Store[modalName][o] = obj[o];
+                            if(typeof obj[o] == 'object'){
+                                var subObj = obj[o];
+                                for(var s in subObj){
+                                    if(typeof subObj[s] !== 'object'){
+                                        modalString = modalString.replace('{{'+s+'}}',subObj[s]);
+                                    }else{
+                                        // it's an object so it's going to be the buttons
+                                        var buttons = subObj[s];
+                                        for(var b in buttons){
+                                            buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
+                                        }
+                                    }
+                                }
+                                modalString = modalString.replace('{{buttons}}',buttonString)
+                            }else{
+                            }
+                        }
+                        console.log(modalString)
+                    } else {
+                        //build modal from store data
+                    }
+                }else {
+                    $p.Flash.Error();
+                }
+            },
+            Destroy:function(item){
+                if(item !== undefined){
+                    $('[pikl-component-name="'+item+'"]').remove();
+                }
+            }
         }
     },
     Widgets:{
 
+    },
+    Flash:{
+        Error:function(){
+
+        },
+        Warning:function(){
+
+        },
+        Message:function(){
+
+        }
     }
 };
 var $p = p = Pikl;
