@@ -65,12 +65,20 @@ module.exports = function (grunt) {
             contents: ['src/concat/*']
         },
         gitcommit: {
-            your_target: {
+            pikl: {
                 options: {
                     allowEmpty:true
                 },
                 files: {
-                    src: ['src/pikl.js','Gruntfile.js']
+                    src: ['**.js']
+                }
+            }
+        },
+        gitpush: {
+            pikl: {
+                options: {
+                    remote:'origin',
+                    branch:'master'
                 }
             }
         }
@@ -86,6 +94,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-git');
 
     // Default task.
-    grunt.registerTask('default', ['concat','sass','cssmin','uglify','clean','watch']);
+    grunt.registerTask('default', ['concat','sass','cssmin','uglify','clean','gitcommit','gitpush','watch']);
     grunt.registerTask('build', ['concat','sass','cssmin','uglify','clean']);
 };
