@@ -65,7 +65,7 @@ var Pikl = {
                     $.when($p.Init.PiklWrapper()).done(function(){
                         $p.Init.Content('[pikl="true"]','fr')
                     }).done(function(){
-                        $('[pikl="true"]').removeClass('no-show');
+                        $('[pikl="true"]').addClass('loaded');
                         console.log('pikl is running');//herere
                     });
                 }
