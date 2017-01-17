@@ -713,6 +713,7 @@ var Pikl = {
                         _target.remove();
                         console.log(modalString)
                     }
+                    _this.BindFunctions();
                 }else {
                     $p.Flash.Error();
                 }
@@ -720,7 +721,14 @@ var Pikl = {
             Destroy:function(item){
                 if(item !== undefined){
                     $('[pikl-component-name="'+item+'"]').remove();
+                }else{
+                    $('[pikl-component*="modal"]').remove();
                 }
+            },
+            BindFunctions:function(){
+                $('body').on('click','[button pikl-type="refuse"]',function(){
+                    $(this).parent().parent().parent().remove();
+                })
             }
         }
     },
