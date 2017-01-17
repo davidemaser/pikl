@@ -493,13 +493,31 @@ var Pikl = {
     Components:{
         Store:{},
         SplitContent:function(obj){
+            obj.cols = obj.cols || 1;
+            obj.split = obj.split || null;
+            var textArray = [];
             if(obj.cols !== undefined && obj.cols !== 1){
-                 if(obj.split !== undefined && obj.split !== ''){
-                     if(obj.text.indexOf(obj.split)){
-                         //we can start splitting
-                         console.log(obj,obj.text.length);
-                     }
-                 }
+                if (obj.split !== undefined && obj.split !== '' && obj.text.indexOf(obj.split) > -1) {
+                    //we can start splitting at the split point
+                    textArray = obj.text.split(obj.split);
+                    //console.log(textArray);
+                    return textArray;
+                } else {
+                    //we can start splitting based on the numeric value
+                    var splitOffset = Math.round(obj.text.length / obj.cols);
+                    var slicePosition = splitOffset;
+                    for (var i = 1; i < splitOffset; i++) {
+                        if (i == 1) {
+                            var sliceStart = 0
+                        } else {
+                            sliceStart = (i - 1) * splitOffset;
+                        }
+                        slicePosition = i * splitOffset;
+                        textArray.push(obj.text.slice(sliceStart, slicePosition));
+                        //console.log(sliceStart, slicePosition, textArray);
+                    }
+                    return textArray;
+                }
             }
         },
         Route:function(obj,params,text){
@@ -510,38 +528,88 @@ var Pikl = {
                 case 'header':
                     this.Header();
                     break;
+                case 'footer':
+                    this.Footer();
+                    break;
+                case 'gutter':
+                    this.Gutter();
+                    break;
+                case 'navigation':
+                    this.Navigation();
+                    break;
             }
         },
         Header:function(){
             var _this = $p.Components.Store.header;
-            _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.simple = '<header>{{content}}</header>';
+            template.parent = '<header>{{content}}</header>';
             template.columns = {};
-            template.columns.two = '<header><div class="header_column">{{content @split:2}}</div></header>';
-            template.columns.three = '<header><div class="header_column">{{content @split:3}}</div></header>';
-            template.columns.four = '<header><div class="header_column">{{content @split:4}}</div></header>';
-            //console.log($p.Components.Store);
+            template.columns.multiple = '<div class="header_column">{{content}}</div>';
+            var childString = '';
+            if(typeof content == 'object'){
+                if(Array.isArray(content)){
+                    for(var c in content){
+                        childString += template.columns.multiple.replace('{{content}}',content[c]);
+                    }
+                }
+                var compactString = template.parent.replace('{{content}}',childString)
+                console.log(compactString);
+            }
         },
         Footer:function(){
+            var _this = $p.Components.Store.header;
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.simple = '<footer>{{content}}</footer>';
+            template.parent = '<footer>{{content}}</footer>';
             template.columns = {};
-            template.columns.two = '<footer><div class="footer_column">{{content @split:2}}</div></footer>';
-            template.columns.three = '<footer><div class="footer_column">{{content @split:3}}</div></footer>';
-            template.columns.four = '<footer><div class="footer_column">{{content @split:4}}</div></footer>';
+            template.columns.multiple = '<div class="footer_column">{{content}}</div>';
+            var childString = '';
+            if(typeof content == 'object'){
+                if(Array.isArray(content)){
+                    for(var c in content){
+                        childString += template.columns.multiple.replace('{{content}}',content[c]);
+                    }
+                }
+                var compactString = template.parent.replace('{{content}}',childString);
+                console.log(compactString);
+            }
         },
         Gutter:function(){
+            var _this = $p.Components.Store.header;
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.simple = '<div role="menu">{{content}}</div>';
+            template.parent = '<div role="menu">{{content}}</div>';
+            template.rows = {};
+            template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
+            var childString = '';
+            if(typeof content == 'object'){
+                if(Array.isArray(content)){
+                    for(var c in content){
+                        childString += template.rows.multiple.replace('{{content}}',content[c]);
+                    }
+                }
+                var compactString = template.parent.replace('{{content}}',childString);
+                console.log(compactString);
+            }
         },
         Navigation:function(){
+            var _this = $p.Components.Store.header;
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.simple = '<nav>{{content}}</nav>';
+            template.parent = '<nav>{{content}}</nav>';
             template.columns = {};
-            template.columns.two = '<nav><div class="nav_column">{{content @split:2}}</div></nav>';
-            template.columns.three = '<nav><div class="nav_column">{{content @split:3}}</div></nav>';
-            template.columns.four = '<nav><div class="nav_column">{{content @split:4}}</div></nav>';
+            template.columns.multiple = '<div class="nav_column">{{content}}</div>';
+            var childString = '';
+            if(typeof content == 'object'){
+                if(Array.isArray(content)){
+                    for(var c in content){
+                        childString += template.columns.multiple.replace('{{content}}',content[c]);
+                    }
+                }
+                var compactString = template.parent.replace('{{content}}',childString);
+                console.log(compactString);
+            }
             function buildNavHierarchy(obj){
 
             }
