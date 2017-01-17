@@ -1,5 +1,19 @@
 /**
  * Created by altitude on 09/01/17.
+
+ ##############
+ # Aliases
+ #############
+
+ Use the following Aliases to access specific functions
+
+ $p or p =  Pikl
+ pi = Pikl.Index
+ pij = Pikl.Init.Json()
+ pa = Pikl.Assistants
+ pf = Pikl.Form
+ pan = Pikl.Animations
+
  */
 var Pikl = {
     Config: {
@@ -698,7 +712,6 @@ var Pikl = {
                         }
                         $(modalString).insertBefore(_target);
                         _target.remove();
-                        console.log(modalString)
                     } else {
                         //build modal from store data
                         console.log('modal loaded from store');
@@ -723,7 +736,6 @@ var Pikl = {
                         }
                         $(modalString).insertBefore(_target);
                         _target.remove();
-                        console.log(modalString)
                     }
                     pan.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
                 }else {
