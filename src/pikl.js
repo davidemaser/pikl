@@ -89,7 +89,11 @@ var Pikl = {
                         componentType = targetContent.split('{@')[1].split(' ')[0];
                         componentParams = targetContent.split('{@')[1].split(' ')[1].split('}')[0].split(',');
                         componentParamsObj = {};
-                        componentText = targetContent.split('}')[1].split('{')[0];
+                        if(targetContent.indexOf('{@json}') > -1){
+                            componentText = targetContent.split('{@json}')[1].split('{/json}')[0];
+                        }else{
+                            componentText = targetContent.split('}')[1].split('{')[0];
+                        }
                         for(p in componentParams){
                             if(componentParams.hasOwnProperty(p)){
                                 paramArray = componentParams[p].split('=');
@@ -537,6 +541,9 @@ var Pikl = {
                     break;
                 case 'navigation':
                     this.Navigation();
+                    break;
+                case 'modal':
+                    this.Modal.Create(JSON.parse(text));
                     break;
             }
         },

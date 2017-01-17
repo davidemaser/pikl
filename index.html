@@ -20,6 +20,7 @@ this method gets the data from an external JSON file
 <pkl is="layout">--div[this is the div thing]--p[this is,that is,this is not]*3
     --section[here I would put my content]</pkl>
 <pkl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pkl>
+<pkl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":""}]}}{/json}{/modal}
 <script src="dist/js/pikl.min.js"></script>
 </body>
 </html>
