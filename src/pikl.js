@@ -689,6 +689,7 @@ var Pikl = {
                         console.log(modalString)
                     } else {
                         //build modal from store data
+                        console.log('modal from store');
                         obj = _this.Store[modalName];
                         for(var o in obj){
                             if(typeof obj[o] == 'object'){
