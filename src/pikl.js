@@ -628,7 +628,7 @@ var Pikl = {
         Modal:{
             Store:{},
             Structure:{
-                default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div><div>{{title}}</div><div>{{body}}</div><div>{{buttons}}</div></div></div>'
+                default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div><div class="pikl modal__title">{{title}}</div><div class="pikl modal__body">{{body}}</div><div class="pikl modal__buttons">{{buttons}}</div></div></div>'
             },
             Create:function(obj){
                 var _this = $p.Components.Modal;
@@ -689,7 +689,7 @@ var Pikl = {
                         console.log(modalString)
                     } else {
                         //build modal from store data
-                        console.log('modal from store');
+                        console.log('modal loaded from store');
                         obj = _this.Store[modalName];
                         for(var o in obj){
                             if(typeof obj[o] == 'object'){
