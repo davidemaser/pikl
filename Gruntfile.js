@@ -63,6 +63,16 @@ module.exports = function (grunt) {
         },
         clean: {
             contents: ['src/concat/*']
+        },
+        gitcommit: {
+            your_target: {
+                options: {
+                    allowEmpty:true
+                },
+                files: {
+                    // Specify the files you want to commit
+                }
+            }
         }
     });
 
@@ -73,6 +83,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-git');
 
     // Default task.
     grunt.registerTask('default', ['concat','sass','cssmin','uglify','clean','watch']);
