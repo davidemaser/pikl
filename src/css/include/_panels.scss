@@ -34,11 +34,14 @@ section{
         left: 0;
       }
     }
-    i.pikl.__gutter_button:before {
-      content: "CLICK";
-      position: absolute;
-      right: 0;
-      top: 0;
+    i.pikl.__gutter_button{
+      cursor: pointer;
+      &:before {
+        content: "CLICK";
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
     }
   }
 }
