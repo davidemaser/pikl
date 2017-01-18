@@ -321,11 +321,12 @@ var Pikl = {
                     }
                 }
                 var compactString = template.parent.replace('{{content}}',childString);
+                $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
+                _this.target.remove();
                 console.log(compactString);
             }else{
                 compactString = template.parent.replace('{{content}}',_this.text);
-                $('body').prepend(compactString);
-                console.log(compactString,_this.target.html());
+                $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
                 _this.target.remove();
             }
         },
