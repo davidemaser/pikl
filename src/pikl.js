@@ -326,14 +326,18 @@ var Pikl = {
                 console.log(compactString);
             }else{
                 var attrString = '';
+                var defaultState = 'visible';
                 if(_this.param !== undefined && typeof _this.param == 'object'){
                     for(var p in _this.param){
                         attrString += ' pikl-gutter-'+p+'="'+_this.param[p]+'"';
+                        if(p == 'state'){
+                            defaultState = _this.param[p];
+                        }
                     }
                 }
                 compactString = template.parent.replace('{{content}}',_this.text);
                 compactString = compactString.replace('{{attributes}}',attrString);
-                $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
+                $('body').prepend(compactString).find('.dill').wrap('<section role="content" pikl-has-gutter="true" pikl-gutter-state="'+defaultState+'">');
                 _this.target.remove();
             }
         },
