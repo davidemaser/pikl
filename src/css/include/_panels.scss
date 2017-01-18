@@ -1,0 +1,16 @@
+section{
+  &[role="menu"] {
+    width: 20%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+  }
+  &[role="content"] {
+    width: 80%;
+    position: absolute;
+    top: 0;
+    left: 20%;
+    height: 100%;
+  }
+}
