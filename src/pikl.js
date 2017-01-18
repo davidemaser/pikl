@@ -310,7 +310,7 @@ var Pikl = {
             var _this = $p.Components.Store.gutter;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.parent = '<div role="menu">{{content}}</div>';
+            template.parent = '<section role="menu">{{content}}</section>';
             template.rows = {};
             template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
             var childString = '';
@@ -322,6 +322,11 @@ var Pikl = {
                 }
                 var compactString = template.parent.replace('{{content}}',childString);
                 console.log(compactString);
+            }else{
+                compactString = template.parent.replace('{{content}}',_this.text);
+                $('body').prepend(compactString);
+                console.log(compactString,_this.target.html());
+                _this.target.remove();
             }
         },
         Navigation:function(){
@@ -597,7 +602,11 @@ var Pikl = {
                     case 'component':
                         var componentType,componentParams,componentParamsObj,componentText,p,paramArray;
                         componentType = targetContent.split('{@')[1].split(' ')[0];
-                        componentParams = targetContent.split('{@')[1].split(' ')[1].split('}')[0].split(',');
+                        if(targetContent.split('{@')[1].split(' ')[1] !== undefined){
+                            componentParams = targetContent.split('{@')[1].split(' ')[1].split('}')[0].split(',');
+                        }else{
+                            componentParams = null
+                        }
                         componentParamsObj = {};
                         if(targetContent.indexOf('{@json}') > -1){
                             componentText = targetContent.split('{@json}')[1].split('{/json}')[0];
