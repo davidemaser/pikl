@@ -129,29 +129,21 @@ var Pikl = {
             var builtList = listTemplate.replace('{{listItems}}',itemString);
             return builtList;
         },
-        Date: function (string) {
-            var currentData = new Date();
-            var formatDate = {};
-            formatDate['day'] = currentData.getDate();
-            formatDate['month'] = currentData.getMonth() + 1;
-            formatDate['year'] = currentData.getFullYear();
-            formatDate['hours'] = currentData.getHours();
-            formatDate['minutes'] = currentData.getMinutes();
-            formatDate['seconds'] = currentData.getSeconds();
-            if(string == true){
-                return formatDate['month']+'/'+formatDate['day']+'/'+formatDate['year']+' '+formatDate['hours']+':'+formatDate['minutes']+':'+formatDate['seconds']
-            }else{
-                return formatDate;
+        Calculate: function (a, b, c) {
+            switch (b) {
+                case 'times':
+                    return a * c;
+                    break;
+                case 'divide':
+                    return a / c;
+                    break;
+                case 'plus':
+                    return a + c;
+                    break;
+                default:
+                    return '';
+                    break;
             }
-        },
-        executeFunctionByName: function (functionName, context , args ) {
-            var args = [].slice.call(arguments).splice(2);
-            var namespaces = functionName.split(".");
-            var func = namespaces.pop();
-            for (var i = 0; i < namespaces.length; i++) {
-                context = context[namespaces[i]];
-            }
-            return context[func].apply(context, args);
         },
         Comparison: function (a, b, c) {
             switch (b) {
@@ -175,6 +167,67 @@ var Pikl = {
                     break;
             }
         },
+        Date: function (string) {
+            var currentData = new Date();
+            var formatDate = {};
+            formatDate['day'] = currentData.getDate();
+            formatDate['month'] = currentData.getMonth() + 1;
+            formatDate['year'] = currentData.getFullYear();
+            formatDate['hours'] = currentData.getHours();
+            formatDate['minutes'] = currentData.getMinutes();
+            formatDate['seconds'] = currentData.getSeconds();
+            if(string == true){
+                return formatDate['month']+'/'+formatDate['day']+'/'+formatDate['year']+' '+formatDate['hours']+':'+formatDate['minutes']+':'+formatDate['seconds']
+            }else{
+                return formatDate;
+            }
+        },
+        ExecuteFunctionByName: function (functionName, context , args ) {
+            var args = [].slice.call(arguments).splice(2);
+            var namespaces = functionName.split(".");
+            var func = namespaces.pop();
+            for (var i = 0; i < namespaces.length; i++) {
+                context = context[namespaces[i]];
+            }
+            return context[func].apply(context, args);
+        },
+        RegisterEvents: function(obj){
+            if(typeof obj == 'object'){
+                for(var o in obj){
+                    $('body').on(obj[o].handler,'[name="'+o+'"]',function(){
+                        eval(obj[o].function);
+                    });
+                }
+            }
+        },
+        SplitContent:function(obj){
+            obj.cols = obj.cols || 1;
+            obj.split = obj.split || null;
+            var textArray = [];
+            if(obj.cols !== undefined && obj.cols !== 1){
+                if (obj.split !== undefined && obj.split !== '' && obj.text.indexOf(obj.split) > -1) {
+                    //we can start splitting at the split point
+                    textArray = obj.text.split(obj.split);
+                    //console.log(textArray);
+                    return textArray;
+                } else {
+                    //we can start splitting based on the numeric value
+                    var splitOffset = Math.round(obj.text.length / obj.cols);
+                    var slicePosition = splitOffset;
+                    for (var i = 1; i < splitOffset; i++) {
+                        if (i == 1) {
+                            var sliceStart = 0
+                        } else {
+                            sliceStart = (i - 1) * splitOffset;
+                        }
+                        slicePosition = i * splitOffset;
+                        textArray.push(obj.text.slice(sliceStart, slicePosition));
+                        //console.log(sliceStart, slicePosition, textArray);
+                    }
+                    return textArray;
+                }
+            }
+        },
         SwapReserved:function(a){
             var res = $p.Config.reserved;
             for(var r in res){
@@ -190,31 +243,6 @@ var Pikl = {
                 }
             }
             return a;
-        },
-        Calculate: function (a, b, c) {
-            switch (b) {
-                case 'times':
-                    return a * c;
-                    break;
-                case 'divide':
-                    return a / c;
-                    break;
-                case 'plus':
-                    return a + c;
-                    break;
-                default:
-                    return '';
-                    break;
-            }
-        },
-        RegisterEvents: function(obj){
-            if(typeof obj == 'object'){
-                for(var o in obj){
-                    $('body').on(obj[o].handler,'[name="'+o+'"]',function(){
-                        eval(obj[o].function);
-                    });
-                }
-            }
         },
         TagBuilder:function(tag,multiplier,content){
             var s = {};
@@ -251,34 +279,6 @@ var Pikl = {
     },
     Components:{
         Store:{},
-        SplitContent:function(obj){
-            obj.cols = obj.cols || 1;
-            obj.split = obj.split || null;
-            var textArray = [];
-            if(obj.cols !== undefined && obj.cols !== 1){
-                if (obj.split !== undefined && obj.split !== '' && obj.text.indexOf(obj.split) > -1) {
-                    //we can start splitting at the split point
-                    textArray = obj.text.split(obj.split);
-                    //console.log(textArray);
-                    return textArray;
-                } else {
-                    //we can start splitting based on the numeric value
-                    var splitOffset = Math.round(obj.text.length / obj.cols);
-                    var slicePosition = splitOffset;
-                    for (var i = 1; i < splitOffset; i++) {
-                        if (i == 1) {
-                            var sliceStart = 0
-                        } else {
-                            sliceStart = (i - 1) * splitOffset;
-                        }
-                        slicePosition = i * splitOffset;
-                        textArray.push(obj.text.slice(sliceStart, slicePosition));
-                        //console.log(sliceStart, slicePosition, textArray);
-                    }
-                    return textArray;
-                }
-            }
-        },
         Build:function(obj,params,text,target){
             $p.Components.Store[obj] = {};
             $p.Components.Store[obj]['param'] = params;
@@ -302,28 +302,9 @@ var Pikl = {
                     break;
             }
         },
-        Header:function(){
-            var _this = $p.Components.Store.header;
-            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {};
-            template.parent = '<header>{{content}}</header>';
-            template.columns = {};
-            template.columns.multiple = '<div class="header_column">{{content}}</div>';
-            var childString = '';
-            if(typeof content == 'object'){
-                if(Array.isArray(content)){
-                    for(var c in content){
-                        childString += template.columns.multiple.replace('{{content}}',content[c]);
-                    }
-                }
-                var compactString = template.parent.replace('{{content}}',childString);
-                $(compactString).insertBefore(_this.target);
-                _this.target.remove();
-            }
-        },
         Footer:function(){
             var _this = $p.Components.Store.footer;
-            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<footer>{{content}}</footer>';
             template.columns = {};
@@ -343,7 +324,7 @@ var Pikl = {
         },
         Gutter:function(){
             var _this = $p.Components.Store.gutter;
-            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<section role="menu"{{attributes}}>{{content}}</section>';
             template.rows = {};
@@ -377,13 +358,32 @@ var Pikl = {
                 _this.target.remove();
             }
             $('body').on('click','.pikl.__gutter_button',function(){
-                $p.Assistants.executeFunctionByName('$p.Animations.GutterStateMotion', window);
+                $p.Assistants.ExecuteFunctionByName('$p.Animations.GutterStateMotion', window);
                 //$p.Animations.GutterStateMotion();
             });
         },
+        Header:function(){
+            var _this = $p.Components.Store.header;
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
+            var template = {};
+            template.parent = '<header>{{content}}</header>';
+            template.columns = {};
+            template.columns.multiple = '<div class="header_column">{{content}}</div>';
+            var childString = '';
+            if(typeof content == 'object'){
+                if(Array.isArray(content)){
+                    for(var c in content){
+                        childString += template.columns.multiple.replace('{{content}}',content[c]);
+                    }
+                }
+                var compactString = template.parent.replace('{{content}}',childString);
+                $(compactString).insertBefore(_this.target);
+                _this.target.remove();
+            }
+        },
         Navigation:function(){
             var _this = $p.Components.Store.navigation;
-            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
             template.parent = '<nav>{{content}}</nav>';
             template.columns = {};
@@ -506,10 +506,10 @@ var Pikl = {
         Error:function(){
 
         },
-        Warning:function(){
+        Message:function(){
 
         },
-        Message:function(){
+        Warning:function(){
 
         }
     },
@@ -824,6 +824,14 @@ var Pikl = {
         }
     },
     Validators:{
+        json:function(code){
+            try{
+                return JSON.parse(code);
+            }catch(e){
+                console.log('Unable to parse JSON '+e);
+            }
+
+        },
         html:function(code){
             /*
             this is an extremely simplistic html validator. It will perform
@@ -833,14 +841,6 @@ var Pikl = {
                 var doc = document.createElement('div');
                 doc.innerHTML = code;
                 return ( doc.innerHTML === code );
-        },
-        json:function(code){
-            try{
-                return JSON.parse(code);
-            }catch(e){
-                console.log('Unable to parse JSON '+e);
-            }
-
         }
     },
     Widgets:{
