@@ -144,6 +144,15 @@ var Pikl = {
                 return formatDate;
             }
         },
+        executeFunctionByName: function (functionName, context , args ) {
+            var args = [].slice.call(arguments).splice(2);
+            var namespaces = functionName.split(".");
+            var func = namespaces.pop();
+            for (var i = 0; i < namespaces.length; i++) {
+                context = context[namespaces[i]];
+            }
+            return context[func].apply(context, args);
+        },
         Comparison: function (a, b, c) {
             switch (b) {
                 case '=':
@@ -368,7 +377,8 @@ var Pikl = {
                 _this.target.remove();
             }
             $('body').on('click','.pikl.__gutter_button',function(){
-                $p.Animations.GutterStateMotion();
+                $p.Assistants.executeFunctionByName('$p.Animations.GutterStateMotion', window);
+                //$p.Animations.GutterStateMotion();
             });
         },
         Navigation:function(){
