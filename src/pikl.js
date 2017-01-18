@@ -502,6 +502,22 @@ var Pikl = {
             }
         }
     },
+    Templates:{
+        Collection:{
+            button:{
+
+            },
+            grid:{
+
+            },
+            table:{
+
+            }
+        },
+        Extract:function(obj){
+            console.log(obj);
+        }
+    },
     Flash:{
         Error:function(){
 
@@ -639,7 +655,7 @@ var Pikl = {
         },
         Content:function(node){
             var appendComma = false, targetObject = {}, targetItem, targetBinding,targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
-                calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, tag,
+                calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, templateObject, tag,
                 c, d, l, p, t, r;
             node = node || '[pikl="true"]';
             $('pkl').each(function(){
@@ -672,6 +688,28 @@ var Pikl = {
                             }
                         }
                         $p.Components.Build(componentType,componentParamsObj,componentText,$(this));
+                        break;
+                    case 'template':
+                        var template = targetContent;
+                        template = template.split('}{');
+                        var templateObject = {};
+                        for(var t in template){
+                            var a = template[t].replace('{','').replace('}','');
+                            var b = a.split('#')[1].split(' ')[0];
+                            templateObject[b] = {};
+                            var c = a.split('#')[1].split(' ')[1];
+                            if(c.indexOf(',')>-1){
+                                var d = c.split(',');
+                                for(var i in d){
+                                    var e = d[i].split('=');
+                                    templateObject[b][e[0]] = e[1];
+                                }
+                            }else{
+                                d = c.split('=');
+                                templateObject[b][d[0]] = d[1];
+                            }
+                        }
+                        $p.Templates.Extract(templateObject);
                         break;
                     case 'layout':
                         layoutObjects = targetContent.split('--');
