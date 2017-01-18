@@ -52,6 +52,33 @@ var Pikl = {
                     $(this).remove();
                 });
             });
+        },
+        SlideOutOnClick: function (obj) {
+            $('body').on(obj.handler, obj.item, function () {
+                var itemWidth = obj.item.width;
+                $(obj.target).animate({left: -itemWidth}, obj.speed);
+            });
+        },
+        GutterStateMotion:function(obj){
+            var animationType = $('section[role="menu"]').attr('pikl-gutter-state') == 'visible' ? 'n' : 'p';
+            var gutterMenu = $('section[role="menu"]');
+            var pageBody = $('section[role="content"]');
+            var gutterWidth = gutterMenu.width();
+            if(animationType == 'n'){
+                var gutterOffset = -gutterWidth;
+                var gutterState = 'invisible';
+                var bodyWidth = 0;
+            }else if(animationType == 'p'){
+                gutterOffset = 0;
+                gutterState = 'visible';
+                bodyWidth = '20%';
+            }
+            $(gutterMenu).animate({left:gutterOffset},500,function(){
+                $(this).attr('pikl-gutter-state',gutterState);
+            });
+            $(pageBody).animate({left:bodyWidth},500,function(){
+                $(this).attr('pikl-gutter-state',gutterState);
+            })
         }
     },
     Assistants: {
@@ -180,7 +207,6 @@ var Pikl = {
                 }
             }
         },
-
         TagBuilder:function(tag,multiplier,content){
             var s = {};
             s.div = {tag:'<div>',close:true};
@@ -313,6 +339,7 @@ var Pikl = {
             template.parent = '<section role="menu"{{attributes}}>{{content}}</section>';
             template.rows = {};
             template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
+            template.button = '<i class="pikl __gutter_button"></i>';
             var childString = '';
             if(typeof content == 'object'){
                 if(Array.isArray(content)){
@@ -320,7 +347,7 @@ var Pikl = {
                         childString += template.rows.multiple.replace('{{content}}',content[c]);
                     }
                 }
-                var compactString = template.parent.replace('{{content}}',childString);
+                var compactString = template.parent.replace('{{content}}',template.button+childString);
                 $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
                 _this.target.remove();
                 console.log(compactString);
@@ -335,11 +362,14 @@ var Pikl = {
                         }
                     }
                 }
-                compactString = template.parent.replace('{{content}}',_this.text);
+                compactString = template.parent.replace('{{content}}',template.button+_this.text);
                 compactString = compactString.replace('{{attributes}}',attrString);
                 $('body').prepend(compactString).find('.dill').wrap('<section role="content" pikl-has-gutter="true" pikl-gutter-state="'+defaultState+'">');
                 _this.target.remove();
             }
+            $('body').on('click',function(){
+                $p.Animations.GutterStateMotion();
+            });
         },
         Navigation:function(){
             var _this = $p.Components.Store.navigation;
