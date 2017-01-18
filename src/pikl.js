@@ -367,7 +367,7 @@ var Pikl = {
                 $('body').prepend(compactString).find('.dill').wrap('<section role="content" pikl-has-gutter="true" pikl-gutter-state="'+defaultState+'">');
                 _this.target.remove();
             }
-            $('body').on('click',function(){
+            $('body').on('click','.pikl.__gutter_button',function(){
                 $p.Animations.GutterStateMotion();
             });
         },
