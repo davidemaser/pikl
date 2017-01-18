@@ -310,7 +310,7 @@ var Pikl = {
             var _this = $p.Components.Store.gutter;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Components.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
-            template.parent = '<section role="menu">{{content}}</section>';
+            template.parent = '<section role="menu"{{attributes}}>{{content}}</section>';
             template.rows = {};
             template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
             var childString = '';
@@ -325,7 +325,14 @@ var Pikl = {
                 _this.target.remove();
                 console.log(compactString);
             }else{
+                var attrString = '';
+                if(_this.param !== undefined && typeof _this.param == 'object'){
+                    for(var p in _this.param){
+                        attrString += ' pikl-gutter-'+p+'="'+_this.param[p]+'"';
+                    }
+                }
                 compactString = template.parent.replace('{{content}}',_this.text);
+                compactString = compactString.replace('{{attributes}}',attrString);
                 $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
                 _this.target.remove();
             }
