@@ -3,14 +3,42 @@ section{
     width: 20%;
     position: absolute;
     top: 0;
-    left: 0;
+    z-index: 999;
     height: 100%;
+    box-shadow: 0 -15px 100px -20px #000;
+    &[pikl-gutter-state="visible"]{
+      left: 0;
+    }
+    &[pikl-gutter-state="invisible"]{
+      left: -20%;
+    }
   }
   &[role="content"] {
-    width: 80%;
     position: absolute;
     top: 0;
-    left: 20%;
+    z-index: 998;
     height: 100%;
+    &[pikl-gutter-state="visible"]{
+      left: 20%;
+      width: 80%;
+    }
+    &[pikl-gutter-state="invisible"]{
+      left: 0;
+      width: 100%;
+    }
+  }
+  &[role="menu"][pikl-gutter-button="true"] {
+    &[pikl-gutter-state="invisible"]{
+      i.pikl.__gutter_button:before {
+        position: fixed;
+        left: 0;
+      }
+    }
+    i.pikl.__gutter_button:before {
+      content: "CLICK";
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
   }
 }
