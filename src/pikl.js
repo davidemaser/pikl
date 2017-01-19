@@ -45,6 +45,11 @@ var Pikl = {
     },
     Index:{},
     Animations: {
+        /*
+        Prebuilt animations that can be called directly or
+        are used to animate properties in widgets and
+        certain template objects
+         */
         FadeOutOnClick: function (obj) {
             //{handler:'click',item:'',target:'',speed:500}
             $('body').on(obj.handler, obj.item, function () {
@@ -84,7 +89,12 @@ var Pikl = {
                 });
             }
         },
-        GutterStateMotion:function(obj){
+        GutterStateMotion:function(){
+            /*
+            private function that handles the gutter menu and
+            page section animation when the gutter toggle
+            button is clicked
+             */
             var animationType = $('section[role="menu"]').attr('pikl-gutter-state') == 'visible' ? 'n' : 'p';
             var gutterMenu = $('section[role="menu"]');
             var pageBody = $('section[role="content"]');
@@ -107,6 +117,10 @@ var Pikl = {
         }
     },
     Assistants: {
+        /*
+        Built in assistant function that can be called directly or
+        from within pikl template objects
+         */
         Ajax:function(obj){
             if(typeof obj == 'object'){
                 var jsonPath = obj.src;
@@ -303,6 +317,10 @@ var Pikl = {
         }
     },
     Components:{
+        /*
+        Pikl template components. Function is called by core builder
+         when pikl is="component" tag is encountered
+         */
         Store:{},
         Build:function(obj,params,text,target){
             $p.Components.Store[obj] = {};
@@ -428,6 +446,10 @@ var Pikl = {
             }
         },
         Modal:{
+            /*
+            Creates a Pikl modal instance that can be called directly or
+            nested in another template or compoenent object
+             */
             Store:{},
             Structure:{
                 default:'<div pikl-component="modal __default" pikl-component-name="{{name}}"><div class="pikl modal__container"><div class="pikl modal__title">{{title}}</div><div class="pikl modal__body">{{body}}</div><div class="pikl modal__buttons">{{buttons}}</div></div></div>'
@@ -530,7 +552,7 @@ var Pikl = {
     Templates:{
         Collection:{
             button:{
-                code:'<button></button>'
+                code:'<button {{attributes}}>{{content}}</button>'
             },
             grid:{
                 code:{}
@@ -540,10 +562,20 @@ var Pikl = {
             }
         },
         Extract:function(obj,target){
+            /*
+            Extracts a template model from the page and
+            places the code found in the Template Collection
+            object in it's place
+             */
             console.log('Model extracted',obj);
             $(target).remove();
         },
         Import:function(obj,target){
+            /*
+            function imports html from a template object and
+            stores it by it's name in the Template Collection
+            object. It can then be called by name
+             */
             if(obj.indexOf('params')>-1){
                 var templateParams = obj.split('params=[')[1].split(']')[0].split(',');
                 //remove the params string after we've imported it
@@ -573,6 +605,10 @@ var Pikl = {
         }
     },
     Flash:{
+        /*
+        Creates a notification panel at the bottom of the page
+        that advises the user when an event is triggered
+         */
         Template:'<section pikl-widget="flash" pikl-flash="{{type}}" {{style}}><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
         Build:function(obj) {
             if($('section[pikl-widget="flash"]').length !== 0){
@@ -734,6 +770,12 @@ var Pikl = {
             });
         },
         Content:function(node){
+            /*
+            Cycles through all pkl markup objects (<pkl>) and sends
+            each accepted object to it's corresponding function.
+            Each object will be treated by it's parent object
+            function
+             */
             var appendComma = false, targetObject = {}, targetItem, targetBinding,targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
                 calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, templateObject, tag,
                 c, d, l, p, t, r;
