@@ -59,6 +59,31 @@ var Pikl = {
                 $(obj.target).animate({left: -itemWidth}, obj.speed);
             });
         },
+        SlideOutOfView:function(obj){
+            var item = obj.object;
+            var dir = obj.direction;
+            var speed = obj.speed || 500;
+            var remove = obj.remove;
+            var height = $(item).height();
+            var width = $(item).width();
+            if(dir == 'down'){
+                $(item).animate({bottom:-height},speed,function(){
+                    remove == true ? $(item).remove() : false;
+                });
+            }else if(dir == 'up'){
+                $(item).animate({top:height},speed,function(){
+                    remove == true ? $(item).remove() : false;
+                });
+            }else if(dir == 'left'){
+                $(item).animate({left:-width},speed,function(){
+                    remove == true ? $(item).remove() : false;
+                });
+            }else if(dir == 'right'){
+                $(item).animate({right:width},speed,function(){
+                    remove == true ? $(item).remove() : false;
+                });
+            }
+        },
         GutterStateMotion:function(obj){
             var animationType = $('section[role="menu"]').attr('pikl-gutter-state') == 'visible' ? 'n' : 'p';
             var gutterMenu = $('section[role="menu"]');
@@ -543,7 +568,7 @@ var Pikl = {
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
                 $(target).remove();
             }else{
-                $p.Flash.Warning({title:'Warning',message:'The template name already exists in the collection. Please chose another one',delay:5000});
+                $p.Flash.Warning({title:'Warning',message:'The template name "'+templateModel+'" already exists in the collection. Please chose another one',delay:5000});
             }
         }
     },
@@ -563,7 +588,8 @@ var Pikl = {
             var codeBlock = $p.Flash.Template.replace(/{{type}}/g,type).replace('{{title}}',title).replace('{{body}}',message);
             $('body').prepend(codeBlock);
                 setTimeout(function(){
-                    $('section[pikl-widget="flash"]').remove();
+                    $p.Animations.SlideOutOfView({object:'section[pikl-widget="flash"]',direction:'down',speed:500,remove:true});
+                    //$('section[pikl-widget="flash"]').remove();
                 },delay);
         }
     },
