@@ -62,7 +62,7 @@ var Pikl = {
         SlideOutOfView:function(obj){
             var item = obj.object;
             var dir = obj.direction;
-            var speed = obj.speed || 500;
+            var speed = obj.speed || 300;
             var remove = obj.remove;
             var height = $(item).height();
             var width = $(item).width();
@@ -351,6 +351,7 @@ var Pikl = {
             var _this = $p.Components.Store.gutter;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
             var template = {};
+            var defaultState = 'visible';
             template.parent = '<section role="menu"{{attributes}}>{{content}}</section>';
             template.rows = {};
             template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
@@ -363,12 +364,11 @@ var Pikl = {
                     }
                 }
                 var compactString = template.parent.replace('{{content}}',template.button+childString);
-                $('body').prepend(compactString).find('.dill').wrap('<section role="content">');
+                $('body').prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
                 _this.target.remove();
                 console.log(compactString);
             }else{
                 var attrString = '';
-                var defaultState = 'visible';
                 if(_this.param !== undefined && typeof _this.param == 'object'){
                     for(var p in _this.param){
                         attrString += ' pikl-gutter-'+p+'="'+_this.param[p]+'"';
@@ -379,7 +379,7 @@ var Pikl = {
                 }
                 compactString = template.parent.replace('{{content}}',template.button+_this.text);
                 compactString = compactString.replace('{{attributes}}',attrString);
-                $('body').prepend(compactString).find('.dill').wrap('<section role="content" pikl-has-gutter="true" pikl-gutter-state="'+defaultState+'">');
+                $('body').prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
                 _this.target.remove();
             }
             $('body').on('click','.pikl.__gutter_button',function(){
@@ -586,7 +586,7 @@ var Pikl = {
                     pan.SlideOutOfView({
                         object: 'section[pikl-widget="flash"]',
                         direction: 'down',
-                        speed: 500,
+                        speed: 250,
                         remove: true
                     });
                 }, delay);
@@ -678,7 +678,7 @@ var Pikl = {
     },
     Init:{
         PiklWrapper:function(){
-            $('body').contents().wrapAll('<div class="dill">');
+            $('body').contents().wrapAll('<section role="content" pikl-has-gutter="false" class="dill">');
         },
         Json:function(){
             var useFormat = $('html').attr('pkl-use');
