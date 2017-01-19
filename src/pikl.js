@@ -59,19 +59,19 @@ var Pikl = {
                 $(obj.target).animate({left: -itemWidth}, obj.speed);
             });
         },
-        SlideOutOfView:function(obj){
+        SlideIntoPosition:function(obj){
             var item = obj.object;
             var dir = obj.direction;
             var speed = obj.speed || 300;
             var remove = obj.remove;
-            var height = $(item).height();
-            var width = $(item).width();
+            var height = obj.height || $(item).height();
+            var width = obj.width || $(item).width();
             if(dir == 'down'){
                 $(item).animate({bottom:-height},speed,function(){
                     remove == true ? $(item).remove() : false;
                 });
             }else if(dir == 'up'){
-                $(item).animate({top:height},speed,function(){
+                $(item).animate({bottom:height},speed,function(){
                     remove == true ? $(item).remove() : false;
                 });
             }else if(dir == 'left'){
@@ -567,29 +567,44 @@ var Pikl = {
                 //new template objects have been imported into the Templates.Collection object. Call them by name
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
             }else{
-                $p.Flash.Build({type:'warning',title:'Warning',message:'The template name "'+templateModel+'" already exists in the collection. Please chose another one',delay:5000});
+                $p.Flash.Build({type:'warning',title:'Warning',message:'The template named "'+templateModel+'" already exists in the collection. Please chose another one',delay:10000});
             }
             $(target).remove();
         }
     },
     Flash:{
-        Template:'<section pikl-widget="flash" pikl-flash="{{type}}"><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
+        Template:'<section pikl-widget="flash" pikl-flash="{{type}}" {{style}}><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
         Build:function(obj) {
-            if (obj !== undefined && typeof obj == 'object') {
-                var type = obj.type;
-                var title = obj.title;
-                var message = obj.message;
-                var delay = parseInt(obj.delay) || 2500;
-                var codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message);
-                $('body').prepend(codeBlock);
-                setTimeout(function () {
-                    pan.SlideOutOfView({
-                        object: 'section[pikl-widget="flash"]',
-                        direction: 'down',
-                        speed: 250,
-                        remove: true
+            if($('section[pikl-widget="flash"]').length !== 0){
+                console.log('Flash object is already open')
+            }else{
+                if (obj !== undefined && typeof obj == 'object') {
+                    var type = obj.type;
+                    var title = obj.title;
+                    var message = obj.message;
+                    var delay = parseInt(obj.delay) || 2500;
+                    var style = 'style="bottom:-160px;"';
+                    var codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message).replace('{{style}}', style);
+                    $('body').prepend(codeBlock);
+                    $.when(
+                        pan.SlideIntoPosition({
+                            object: 'section[pikl-widget="flash"]',
+                            direction: 'up',
+                            speed: 250,
+                            height:0,
+                            remove: false
+                        })
+                    ).done(function(){
+                        setTimeout(function () {
+                            pan.SlideIntoPosition({
+                                object: 'section[pikl-widget="flash"]',
+                                direction: 'down',
+                                speed: 250,
+                                remove: true
+                            });
+                        }, delay);
                     });
-                }, delay);
+                }
             }
         }
     },
