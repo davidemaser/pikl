@@ -525,31 +525,36 @@ var Pikl = {
                  obj = obj.replace(' params=['+templateParams+']','');
             }
             var templateModel = obj.split('model=')[1].split('}')[0];
-            var templateContent = obj.split('}')[1].split('{')[0];
-            pt.Collection[templateModel] = {};
-            pt.Collection[templateModel]['code'] = templateContent;
-            if(templateParams !== undefined && templateParams !== ''){
-                pt.Collection[templateModel]['params'] = {};
-                for(var p in templateParams){
-                    var subObject = templateParams[p].split('=');
-                    pt.Collection[templateModel]['params'][subObject[0]] = subObject[1];
-                }
-            }else{
+            var exists = pt.Collection[templateModel] !== undefined;
+            if(exists !== true) {
+                var templateContent = obj.split('}')[1].split('{')[0];
+                pt.Collection[templateModel] = {};
                 pt.Collection[templateModel]['code'] = templateContent;
+                if (templateParams !== undefined && templateParams !== '') {
+                    pt.Collection[templateModel]['params'] = {};
+                    for (var p in templateParams) {
+                        var subObject = templateParams[p].split('=');
+                        pt.Collection[templateModel]['params'][subObject[0]] = subObject[1];
+                    }
+                } else {
+                    pt.Collection[templateModel]['code'] = templateContent;
+                }
+                //new template objects have been imported into the Templates.Collection object. Call them by name
+                console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
+                $(target).remove();
+            }else{
+                $p.Flash.Warning({head:'Warning',message:'The template name already exists in the collection. Please chose another one',delay:5000});
             }
-            //new template objects have been imported into the Templates.Collection object. Call them by name
-            console.log('Model built having name '+templateModel,pt.Collection[templateModel]);
-            $(target).remove();
         }
     },
     Flash:{
         Error:function(){
 
         },
-        Message:function(){
+        Message:function(obj){
 
         },
-        Warning:function(){
+        Warning:function(obj){
 
         }
     },
