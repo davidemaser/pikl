@@ -64,8 +64,8 @@ var Pikl = {
             var dir = obj.direction;
             var speed = obj.speed || 300;
             var remove = obj.remove;
-            var height = obj.height || $(item).height();
-            var width = obj.width || $(item).width();
+            var height = obj.height !== undefined ? obj.height : $(item).height();
+            var width = obj.width !== undefined ? obj.width : $(item).width();
             if(dir == 'down'){
                 $(item).animate({bottom:-height},speed,function(){
                     remove == true ? $(item).remove() : false;
