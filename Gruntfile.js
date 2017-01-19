@@ -1,7 +1,5 @@
 module.exports = function (grunt) {
-    // Project configuration.
     grunt.initConfig({
-        // Metadata.
         pkg: grunt.file.readJSON('package.json'),
         banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today(\"yyyy-mm-dd\") %>*/\n',
@@ -83,7 +81,6 @@ module.exports = function (grunt) {
             }
         }
     });
-
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
