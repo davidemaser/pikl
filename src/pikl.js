@@ -402,7 +402,6 @@ var Pikl = {
             }
             $('body').on('click','.pikl.__gutter_button',function(){
                 $p.Assistants.ExecuteFunctionByName('pan.GutterStateMotion', window);
-                //pan.GutterStateMotion();
             });
         },
         Header:function(){
