@@ -383,8 +383,8 @@ var Pikl = {
                 _this.target.remove();
             }
             $('body').on('click','.pikl.__gutter_button',function(){
-                $p.Assistants.ExecuteFunctionByName('$p.Animations.GutterStateMotion', window);
-                //$p.Animations.GutterStateMotion();
+                $p.Assistants.ExecuteFunctionByName('pan.GutterStateMotion', window);
+                //pan.GutterStateMotion();
             });
         },
         Header:function(){
@@ -515,7 +515,7 @@ var Pikl = {
                     }
                     pan.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
                 }else {
-                    $p.Flash.Error();
+                    $p.Flash.Build();
                 }
             },
             Destroy:function(item){
@@ -568,29 +568,30 @@ var Pikl = {
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
                 $(target).remove();
             }else{
-                $p.Flash.Warning({title:'Warning',message:'The template name "'+templateModel+'" already exists in the collection. Please chose another one',delay:5000});
+                $p.Flash.Build({type:'warning',title:'Warning',message:'The template name "'+templateModel+'" already exists in the collection. Please chose another one',delay:5000});
             }
         }
     },
     Flash:{
         Template:'<section pikl-widget="flash" pikl-flash="{{type}}"><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
-        Error:function(){
-
-        },
-        Message:function(obj){
-
-        },
-        Warning:function(obj){
-            var type = 'warning';
-            var title = obj.title;
-            var message = obj.message;
-            var delay = parseInt(obj.delay) || 2500;
-            var codeBlock = $p.Flash.Template.replace(/{{type}}/g,type).replace('{{title}}',title).replace('{{body}}',message);
-            $('body').prepend(codeBlock);
-                setTimeout(function(){
-                    $p.Animations.SlideOutOfView({object:'section[pikl-widget="flash"]',direction:'down',speed:500,remove:true});
+        Build:function(obj) {
+            if (obj !== undefined && typeof obj == 'object') {
+                var type = obj.type;
+                var title = obj.title;
+                var message = obj.message;
+                var delay = parseInt(obj.delay) || 2500;
+                var codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message);
+                $('body').prepend(codeBlock);
+                setTimeout(function () {
+                    pan.SlideOutOfView({
+                        object: 'section[pikl-widget="flash"]',
+                        direction: 'down',
+                        speed: 500,
+                        remove: true
+                    });
                     //$('section[pikl-widget="flash"]').remove();
-                },delay);
+                }, delay);
+            }
         }
     },
     Form:{
