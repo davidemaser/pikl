@@ -1,0 +1,25 @@
+section[pikl-widget="flash"] {
+  position: absolute;
+  bottom: 0;
+  background: #000;
+  color: #fff;
+  width: 100%;
+  box-shadow: 0px 0px 40px -5px #000;
+  padding: 10px 0;
+}
+
+.pikl{
+  &.__flash_warning{
+    &.title {
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5px;
+      padding: 0 10px;
+    }
+    &.body {
+      text-align: center;
+      padding: 10px;
+    }
+  }
+}
