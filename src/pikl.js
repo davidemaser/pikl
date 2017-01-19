@@ -505,17 +505,38 @@ var Pikl = {
     Templates:{
         Collection:{
             button:{
-
+                code:'<button></button>'
             },
             grid:{
-
+                code:{}
             },
             table:{
-
+                code:'<table><tbody><tr><td></td></tr></tbody></table>'
             }
         },
         Extract:function(obj){
             console.log(obj);
+        },
+        Import:function(obj){
+            if(obj.indexOf('params')>-1){
+                var templateParams = obj.split('params=[')[1].split(']')[0].split(',');
+                //remove the params string after we've imported it
+                 obj = obj.replace(' params=['+templateParams+']','');
+            }
+            var templateModel = obj.split('model=')[1].split('}')[0];
+            var templateContent = obj.split('}')[1].split('{')[0];
+            $p.Templates.Collection[templateModel] = {};
+            $p.Templates.Collection[templateModel]['code'] = templateContent;
+            if(templateParams !== undefined && templateParams !== ''){
+                $p.Templates.Collection[templateModel]['params'] = {};
+                for(var p in templateParams){
+                    var subObject = templateParams[p].split('=');
+                    $p.Templates.Collection[templateModel]['params'][subObject[0]] = subObject[1];
+                }
+            }else{
+                $p.Templates.Collection[templateModel]['code'] = templateContent;
+            }
+            console.log($p.Templates.Collection);
         }
     },
     Flash:{
@@ -691,25 +712,29 @@ var Pikl = {
                         break;
                     case 'template':
                         var template = targetContent;
-                        template = template.split('}{');
-                        var templateObject = {};
-                        for(var t in template){
-                            var a = template[t].replace('{','').replace('}','');
-                            var b = a.split('#')[1].split(' ')[0];
-                            templateObject[b] = {};
-                            var c = a.split('#')[1].split(' ')[1];
-                            if(c.indexOf(',')>-1){
-                                var d = c.split(',');
-                                for(var i in d){
-                                    var e = d[i].split('=');
-                                    templateObject[b][e[0]] = e[1];
+                        if(targetContent.indexOf('@import')>-1){
+                            $p.Templates.Import(targetContent);
+                        }else {
+                            template = template.split('}{');
+                            var templateObject = {};
+                            for (var t in template) {
+                                var a = template[t].replace('{', '').replace('}', '');
+                                var b = a.split('#')[1].split(' ')[0];
+                                templateObject[b] = {};
+                                var c = a.split('#')[1].split(' ')[1];
+                                if (c.indexOf(',') > -1) {
+                                    var d = c.split(',');
+                                    for (var i in d) {
+                                        var e = d[i].split('=');
+                                        templateObject[b][e[0]] = e[1];
+                                    }
+                                } else {
+                                    d = c.split('=');
+                                    templateObject[b][d[0]] = d[1];
                                 }
-                            }else{
-                                d = c.split('=');
-                                templateObject[b][d[0]] = d[1];
                             }
+                            $p.Templates.Extract(templateObject);
                         }
-                        $p.Templates.Extract(templateObject);
                         break;
                     case 'layout':
                         layoutObjects = targetContent.split('--');

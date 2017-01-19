@@ -24,6 +24,8 @@ this method gets the data from an external JSON file
 <pkl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":"close"}]}}{/json}{/modal}</pkl>
 <pkl is="component">{@gutter type=default,state=visible,button=true}<div class="">this is text</div>{/gutter}</pkl>
 <pkl is="template">{#button repeat=3}{#table style=default,var=grid}{#grid style=default}</pkl>
+<pkl is="template">{@import model=newTemplate params=[fast=true,slow=false,up=left]}<div></div>{/import}</pkl>
+<pkl is="template">{@import model=another one}<div></div>{/import}</pkl>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="src/pikl.js"></script>
     <!--<script src="dist/js/pikl.min.js"></script>-->
