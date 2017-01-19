@@ -543,11 +543,12 @@ var Pikl = {
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
                 $(target).remove();
             }else{
-                $p.Flash.Warning({head:'Warning',message:'The template name already exists in the collection. Please chose another one',delay:5000});
+                $p.Flash.Warning({title:'Warning',message:'The template name already exists in the collection. Please chose another one',delay:5000});
             }
         }
     },
     Flash:{
+        Template:'<section pikl-widget="flash" pikl-flash="{{type}}"><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
         Error:function(){
 
         },
@@ -555,7 +556,15 @@ var Pikl = {
 
         },
         Warning:function(obj){
-
+            var type = 'warning';
+            var title = obj.title;
+            var message = obj.message;
+            var delay = parseInt(obj.delay) || 2500;
+            var codeBlock = $p.Flash.Template.replace(/{{type}}/g,type).replace('{{title}}',title).replace('{{body}}',message);
+            $('body').prepend(codeBlock);
+                setTimeout(function(){
+                    $('section[pikl-widget="flash"]').remove();
+                },delay);
         }
     },
     Form:{
