@@ -566,10 +566,10 @@ var Pikl = {
                 }
                 //new template objects have been imported into the Templates.Collection object. Call them by name
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
-                $(target).remove();
             }else{
                 $p.Flash.Build({type:'warning',title:'Warning',message:'The template name "'+templateModel+'" already exists in the collection. Please chose another one',delay:5000});
             }
+            $(target).remove();
         }
     },
     Flash:{
@@ -589,7 +589,6 @@ var Pikl = {
                         speed: 500,
                         remove: true
                     });
-                    //$('section[pikl-widget="flash"]').remove();
                 }, delay);
             }
         }
