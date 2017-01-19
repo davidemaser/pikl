@@ -514,10 +514,11 @@ var Pikl = {
                 code:'<table><tbody><tr><td></td></tr></tbody></table>'
             }
         },
-        Extract:function(obj){
-            console.log(obj);
+        Extract:function(obj,target){
+            console.log('Model extracted',obj);
+            $(target).remove();
         },
-        Import:function(obj){
+        Import:function(obj,target){
             if(obj.indexOf('params')>-1){
                 var templateParams = obj.split('params=[')[1].split(']')[0].split(',');
                 //remove the params string after we've imported it
@@ -525,18 +526,20 @@ var Pikl = {
             }
             var templateModel = obj.split('model=')[1].split('}')[0];
             var templateContent = obj.split('}')[1].split('{')[0];
-            $p.Templates.Collection[templateModel] = {};
-            $p.Templates.Collection[templateModel]['code'] = templateContent;
+            pt.Collection[templateModel] = {};
+            pt.Collection[templateModel]['code'] = templateContent;
             if(templateParams !== undefined && templateParams !== ''){
-                $p.Templates.Collection[templateModel]['params'] = {};
+                pt.Collection[templateModel]['params'] = {};
                 for(var p in templateParams){
                     var subObject = templateParams[p].split('=');
-                    $p.Templates.Collection[templateModel]['params'][subObject[0]] = subObject[1];
+                    pt.Collection[templateModel]['params'][subObject[0]] = subObject[1];
                 }
             }else{
-                $p.Templates.Collection[templateModel]['code'] = templateContent;
+                pt.Collection[templateModel]['code'] = templateContent;
             }
-            console.log($p.Templates.Collection);
+            //new template objects have been imported into the Templates.Collection object. Call them by name
+            console.log('Model built having name '+templateModel,pt.Collection[templateModel]);
+            $(target).remove();
         }
     },
     Flash:{
@@ -713,7 +716,7 @@ var Pikl = {
                     case 'template':
                         var template = targetContent;
                         if(targetContent.indexOf('@import')>-1){
-                            $p.Templates.Import(targetContent);
+                            $p.Templates.Import(targetContent,targetItem);
                         }else {
                             template = template.split('}{');
                             var templateObject = {};
@@ -733,7 +736,7 @@ var Pikl = {
                                     templateObject[b][d[0]] = d[1];
                                 }
                             }
-                            $p.Templates.Extract(templateObject);
+                            $p.Templates.Extract(templateObject,targetItem);
                         }
                         break;
                     case 'layout':
@@ -915,4 +918,5 @@ var pi = Pikl.Index;
 var pij = Pikl.Init.Json();
 var pa = Pikl.Assistants;
 var pf = Pikl.Form;
+var pt = Pikl.Templates;
 var pan = Pikl.Animations;
