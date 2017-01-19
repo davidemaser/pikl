@@ -845,6 +845,7 @@ there.
 @media (min-width: 1200px) {}
 
 body[pikl="true"]{
+  overflow: hidden;
   display: none;
   &.loaded{
     display: block;
