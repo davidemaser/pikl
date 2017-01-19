@@ -220,7 +220,7 @@ var Pikl = {
             if(typeof obj == 'object'){
                 for(var o in obj){
                     $('body').on(obj[o].handler,'[name="'+o+'"]',function(){
-                        eval(obj[o].function);
+                        $p.Assistants.ExecuteFunctionByName(obj[o].function, window);
                     });
                 }
             }
@@ -717,6 +717,7 @@ var Pikl = {
                         pi[key] = value;
                     })
                 },error:function(){
+                    $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
                 },complete:function(){
                     /*
                     ondce all indexes have been stored in the
@@ -842,7 +843,7 @@ var Pikl = {
                                     pa.Ajax(jsonPath).done(function (result) {
                                         pf.Build(result, targetItem);
                                     }).fail(function () {
-                                        console.log('could not load json data');
+                                        $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
                                     });
                                 }else{
                                     targetContent = targetContent.replace('{@json}', '').replace('{/json}', '');
@@ -935,7 +936,7 @@ var Pikl = {
                                     $('<'+tag+'>' + returnedData + '</'+tag+'>').insertBefore($(_this));
                                     $(_this).remove();
                                 }).fail(function () {
-                                    console.log('could not load json data');
+                                    $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
                                 });
                                 break;
                         }
@@ -949,7 +950,7 @@ var Pikl = {
             try{
                 return JSON.parse(code);
             }catch(e){
-                console.log('Unable to parse JSON '+e);
+                $p.Flash.Build({type:'error',title:'JSON Parse Error',message:'Unable to parse JSON '+e,delay:10000})
             }
 
         },
