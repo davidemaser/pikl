@@ -513,16 +513,16 @@ var Pikl = {
                         //build modal from store data
                         console.log('modal loaded from store');
                         obj = _this.Store[modalName];
-                        for(var o in obj){
+                        for(o in obj){
                             if(typeof obj[o] == 'object'){
-                                var subObj = obj[o];
-                                for(var s in subObj){
+                                subObj = obj[o];
+                                for(s in subObj){
                                     if(typeof subObj[s] !== 'object'){
                                         modalString = modalString.replace('{{'+s+'}}',subObj[s]);
                                     }else{
                                         // it's an object so it's going to be the buttons
-                                        var buttons = subObj[s];
-                                        for(var b in buttons){
+                                        buttons = subObj[s];
+                                        for(b in buttons){
                                             buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
                                         }
                                     }
@@ -553,21 +553,78 @@ var Pikl = {
             button:{
                 code:'<button {{attributes}}>{{content}}</button>'
             },
+            list:{
+                code:'<ul>{@each}<li>{{content}}</li>{/each}</ul>'
+            },
+            form:{
+                select:{
+                    code:'<select>{@each}<option value="{{value}}">{{label}}</option>{/each}</select>'
+                }
+            },
             grid:{
-                code:{}
+                code:''
             },
             table:{
-                code:'<table><tbody><tr><td></td></tr></tbody></table>'
+                code:'<table><tbody><th><td>{{header}}</td></th>{@each}<tr><td>{{content}}</td></tr>{/each}</tbody></table>'
             }
+        },
+        HandleContent:function(obj,target){
+            //console.log(obj,target);
+            if(typeof obj == 'object'){
+                var objArray = [];
+                for(var o in obj){
+                    var thisObj = obj[o];
+                    if(thisObj.code !== undefined){
+                        var code = thisObj.code;
+                        for(var t in thisObj){
+                            code = code.replace('{{'+t+'}}',thisObj[t]);
+                        }
+                        objArray.push(code);
+                    }else{
+                        for(t in thisObj){
+                            thisObj = thisObj[t];
+                            if(typeof thisObj == 'object'){
+                                code = thisObj.code;
+                                for(var to in thisObj){
+                                    code = code.replace('{{'+to+'}}',thisObj[to]);
+                                    console.log(to,thisObj[to]);
+                                }
+                                objArray.push(code);
+                            }
+                        }
+                    }
+                }
+                console.log(objArray);
+            }else{
+                $p.Flash.Build({type:'error',title:'Type Mismatch',message:'Function was expecting an object but did not receive one',delay:10000});
+            }
+            $(target).remove();
         },
         Extract:function(obj,target){
             /*
             Extracts a template model from the page and
             places the code found in the Template Collection
             object in it's place
+            @todo : function should handle parameters the same way as the import function does. By placing them in a params object. This will avoid discrepancies when loading from a static or dynamic template
+
              */
-            console.log('Model extracted',obj);
-            $(target).remove();
+            var o,t,tmp,codeBlock='';
+            if(typeof obj == 'object'){
+                for(o in obj){
+                    if(pt.Collection[o].code == undefined){
+                        tmp = pt.Collection[o];
+                        for(t in tmp){
+                            obj[o][t].code = pt.Collection[o][t].code;
+                            codeBlock += pt.Collection[o][t].code;
+                        }
+                    }else if(pt.Collection[o].code !== undefined && pt.Collection[o].code !== ''){
+                        obj[o].code = pt.Collection[o].code;
+                        codeBlock += pt.Collection[o].code;
+                    }
+                }
+                pt.HandleContent(obj,target);
+                //console.log(codeBlock,'Model extracted',obj);
+            }
         },
         Import:function(obj,target){
             /*
@@ -784,7 +841,7 @@ var Pikl = {
                 targetBinding = $(this).attr('is');
                 targetDataBinding = $(this).attr('bind');
                 targetObject = pi[targetDataBinding];
-                targetContent = $(this).html();
+                targetContent = $(this).html().replace(/(\r\n|\n|\r)/gm,'').replace(/\}\s+\{/g,'}{');
                 targetItem = $(this);
                 tag = $p.Config.defaults.tplTag.replacement;
                 switch(targetBinding) {
@@ -812,28 +869,70 @@ var Pikl = {
                         break;
                     case 'template':
                         var template = targetContent;
+                        var templateObject = {};
                         if(targetContent.indexOf('@import')>-1){
                             $p.Templates.Import(targetContent,targetItem);
                         }else {
-                            template = template.split('}{');
+                            var eachObject = template.split('}{@');
+                            for(var e in eachObject){
+                                var templateObjectType,templateParams;
+                                eachObject[e] = eachObject[e].replace('{@','');
+                                templateObjectType = eachObject[e].split(' ')[0].split('.')[0];
+                                eachObject[e] = eachObject[e].replace('{/'+templateObjectType+'}','').replace('{/'+templateObjectType,'').replace('}','').replace(templateObjectType+' ','');
+                                templateParams = eachObject[e].split(',');
+                                for(p in templateParams){
+                                    templateObject[templateObjectType] = {};
+                                    var _this = templateParams[p];
+                                    console.log(templateParams[p])
+                                    _this = _this.split('=');
+                                    templateObject[templateObjectType][_this[0]] = _this[1]
+                                    //console.log(templateObject)
+                                }
+                                if(templateObjectType.indexOf('.')>-1){
+
+                                }else{
+                                    //console.log(templateObjectType, templateParams)
+                                }
+
+                            }
+                            //template = targetContent.split('{@'+templateObjectType+'}')[1].split('{/'+templateObjectType+'}')[0];
+                            /*//template = template.split('}{');
                             var templateObject = {};
                             for (var t in template) {
                                 var a = template[t].replace('{', '').replace('}', '');
-                                var b = a.split('#')[1].split(' ')[0];
-                                templateObject[b] = {};
-                                var c = a.split('#')[1].split(' ')[1];
-                                if (c.indexOf(',') > -1) {
-                                    var d = c.split(',');
-                                    for (var i in d) {
-                                        var e = d[i].split('=');
-                                        templateObject[b][e[0]] = e[1];
+                                var b = a.split('@')[1].split(' ')[0];
+                                if(b.indexOf('.')>-1){
+                                    var j =  b.split('.')[0];
+                                    var k = b.split('.')[1];
+                                    templateObject[j] = {};
+                                    templateObject[j][k] = {};
+                                    var c = a.split('@')[1].split(' ')[1];
+                                    if (c.indexOf(',') > -1) {
+                                        var d = c.split(',');
+                                        for (var i in d) {
+                                            var e = d[i].split('=');
+                                            templateObject[j][k][e[0]] = e[1];
+                                        }
+                                    } else {
+                                        d = c.split('=');
+                                        templateObject[j][k][d[0]] = d[1];
                                     }
-                                } else {
-                                    d = c.split('=');
-                                    templateObject[b][d[0]] = d[1];
+                                }else{
+                                    templateObject[b] = {};
+                                    c = a.split('@')[1].split(' ')[1];
+                                    if (c.indexOf(',') > -1) {
+                                        d = c.split(',');
+                                        for (i in d) {
+                                            e = d[i].split('=');
+                                            templateObject[b][e[0]] = e[1];
+                                        }
+                                    } else {
+                                        d = c.split('=');
+                                        templateObject[b][d[0]] = d[1];
+                                    }
                                 }
                             }
-                            $p.Templates.Extract(templateObject,targetItem);
+                            $p.Templates.Extract(templateObject,targetItem);*/
                         }
                         break;
                     case 'layout':

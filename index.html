@@ -23,7 +23,10 @@ this method gets the data from an external JSON file
 <pkl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pkl>
 <pkl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":"close"}]}}{/json}{/modal}</pkl>
 <pkl is="component">{@gutter type=default,state=visible,button=true}<div class="">this is text</div>{/gutter}</pkl>
-<pkl is="template">{#button repeat=3}{#table style=default,var=grid}{#grid style=default}</pkl>
+<pkl is="template">{@button repeat=3,attributes=this}{/button}
+    {@table style=default,var=grid}{/table}
+    {@grid style=default}{/grid}
+    {@form.select style=default,options=this}{/form}</pkl>
 <pkl is="template">{@import model=newTemplate params=[fast=true,slow=false,up=left]}<div></div>{/import}</pkl>
 <pkl is="template">{@import model=button}<div></div>{/import}</pkl>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
