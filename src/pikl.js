@@ -623,7 +623,7 @@ var Pikl = {
                     }
                 }
                 pt.HandleContent(obj,target);
-                //console.log(codeBlock,'Model extracted',obj);
+                console.log(obj,target);
             }
         },
         Import:function(obj,target){
