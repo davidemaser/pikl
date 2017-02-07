@@ -184,6 +184,14 @@ var Pikl = {
                     break;
             }
         },
+        CleanUp: function (str) {
+            var list = ['id','class','name','attributes','style','header',' '];
+            for(var l in list){
+                str = str.replace(new RegExp('{{'+list[l]+'}}', 'g'), '');
+                //str = str.replace('{{'+list[l]+'}}', '');
+            }
+            return str;
+        },
         Comparison: function (a, b, c) {
             switch (b) {
                 case '=':
@@ -222,13 +230,17 @@ var Pikl = {
             }
         },
         ExecuteFunctionByName: function (functionName, context , args ) {
-            var args = [].slice.call(arguments).splice(2);
-            var namespaces = functionName.split(".");
-            var func = namespaces.pop();
-            for (var i = 0; i < namespaces.length; i++) {
-                context = context[namespaces[i]];
+            try {
+                var args = [].slice.call(arguments).splice(2);
+                var namespaces = functionName.split(".");
+                var func = namespaces.pop();
+                for (var i = 0; i < namespaces.length; i++) {
+                    context = context[namespaces[i]];
+                }
+                return context[func].apply(context, args);
+            }catch(e){
+                $p.Flash.Build({type:'error',title:'EXECUTION ERROR',message:'A Function was unable to execute due to an unkown error',delay:10000})
             }
-            return context[func].apply(context, args);
         },
         RegisterEvents: function(obj){
             if(typeof obj == 'object'){
@@ -238,6 +250,9 @@ var Pikl = {
                     });
                 }
             }
+        },
+        Repeat: function (str, times) {
+            return new Array(times + 1).join(str);
         },
         SplitContent:function(obj){
             obj.cols = obj.cols || 1;
@@ -551,22 +566,28 @@ var Pikl = {
     Templates:{
         Collection:{
             button:{
-                code:'<button {{attributes}}>{{content}}</button>'
+                code:'<button {{id}} {{class}} {{name}} {{attributes}} {{style}}>{{content}}</button>'
             },
             list:{
                 code:'<ul>{@each}<li>{{content}}</li>{/each}</ul>'
             },
             form:{
                 select:{
-                    code:'<select>{@each}<option value="{{value}}">{{label}}</option>{/each}</select>'
+                    code:'<select {{id}} {{class}} {{name}} {{attributes}} {{style}}>{@each}<option value="{{value}}">{{label}}</option>{/each}</select>'
                 }
             },
             grid:{
                 code:''
             },
             table:{
-                code:'<table><tbody><th><td>{{header}}</td></th>{@each}<tr><td>{{content}}</td></tr>{/each}</tbody></table>'
+                code:'<table {{id}} {{class}} {{name}} {{attributes}} {{style}}><tbody><th><td>{{header}}</td></th><tr><td>{{content}}</td></tr></tbody></table>'
             }
+        },
+        Inline:{
+            id:'id="{{handle}}"',
+            class:'class="{{handle}}"',
+            style:'style="{{handle}}"',
+            name:'name="{{handle}}"'
         },
         HandleContent:function(obj,target){
             console.log(obj,target);
@@ -601,53 +622,68 @@ var Pikl = {
             $(target).remove();
         },
         ParseContent:function(obj,target){
+            function replaceHandle(a,b){
+                if(pt.Inline[a] !== undefined) {
+                    return pt.Inline[a].replace('{{handle}}', b);
+                }
+            }
             var accepts = {};
             accepts.select = ['option','value'];
             accepts.button = ['repeat','attributes','class','id','event'];
             if(typeof obj == 'object'){
                 for(var o in obj){
-                    var templateItem = {};
                     var _this = obj[o];
-                    var _type = o;
-                    var _typeTemplate = $p.Templates.Collection[_type].code;
+                    var _typeTemplate = $p.Templates.Collection[o].code;
+                    var _repeat = obj[o].repeat !== undefined && obj[o].repeat !== null ? parseInt(obj[o].repeat) : 1;
+                    var _inlineObj,_parent,_child,_outputTemplate,_formattedString,_outputString,_outputWrapper;
                     if(typeof _this == 'object' && obj.hasOwnProperty(o)){
                         for(var t in _this){
-                            if(typeof _this[t] !== 'object'){
-                                if(t == 'attributes'){
-                                    var attArray = _this[t].split(' ');
-                                    var attString = '';
-                                    templateItem['attributes'] = {};
-                                    for(var a in attArray){
-                                        var attObject = attArray[a].split("'");
-                                        templateItem['attributes'][attObject[0]] = attObject[1];
-                                    }
-                                    $.each(templateItem['attributes'],function(key,value){
-                                        attString += key+'="'+value+'" ';
-                                    });
-                                    _typeTemplate = _typeTemplate.replace('{{attributes}}',attString.trim());
-                                }else {
-                                    _typeTemplate = _typeTemplate.replace('{{'+t+'}}',_this[t].trim());
+                            if (typeof _this[t] !== 'object') {
+                                if(pt.Inline[t] === undefined){
+                                    _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
+                                }else{
+                                    _inlineObj = replaceHandle(t,_this[t]);
+                                    _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _inlineObj);
                                 }
-                            }else{
-                                var _parent = o;
-                                var _child = t;
+                            }else {
+                                //_typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
+                                _parent = o;
+                                _child = t;
                                 _this = _this[t];
-                                var _outputTemplate = $p.Templates.Collection[_parent];
-                                //console.log(_child,_typeTemplate[_child].code)
-                                for(var tt in _this){
-                                    _typeTemplate = _outputTemplate[_child].code;
-                                    console.log(_typeTemplate,tt,_this[tt]);
+                                _outputTemplate = $p.Templates.Collection[_parent][_child] === undefined ? $p.Templates.Collection[_parent].code : $p.Templates.Collection[_parent][_child].code;
+                                _formattedString = '';
+                                if(_outputTemplate.indexOf('{@each}') > -1) {
+                                    _outputString = _outputTemplate.split('{@each}')[1].split('{/each}')[0];
+                                    _outputWrapper = _outputTemplate.split('{@each}')[0].replace('<', '').replace('>', '');
+                                }else{
+                                    if(typeof _this === 'object'){
+                                        for(var th in _this){
+                                            _formattedString += _this[th][0]+'="'+_this[th][1]+'" ';
+                                        }
+                                    }
+                                    _typeTemplate = _typeTemplate.replace('{{'+t+'}}',_formattedString);
+                                }
+                                if(_this.options !== undefined){
+                                    var options = _this.options;
+                                    for(var op in options){
+                                        _formattedString += _outputString.replace('{{value}}',options[op][1]).replace('{{label}}',options[op][0]);
+                                    }
+                                    _typeTemplate = '<'+_outputWrapper+'>'+_formattedString+'</'+_outputWrapper+'>';
+                                }
+                            }
+                            for(var m in _this){
+                                if(typeof _this[m] !== 'object'){
+                                    _typeTemplate = _typeTemplate.replace('{{'+m+'}}',replaceHandle(m,_this[m]));
                                 }
                             }
                         }
                     }
-                    _typeTemplate !== undefined && _typeTemplate !== '' ? this.DisplayContent(_typeTemplate,target) : false;
+                    _typeTemplate !== undefined && _typeTemplate !== '' ? this.DisplayContent(pa.Repeat(_typeTemplate,_repeat),target) : false;
                 }
             }
         },
         DisplayContent:function(obj,target){
-            console.log(obj)
-            $(obj).insertBefore(target);
+            $(pa.CleanUp(obj)).insertBefore(target);
             $(target).css('display','none');
         },
         Extract:function(obj,target){
@@ -655,11 +691,8 @@ var Pikl = {
             Extracts a template model from the page and
             places the code found in the Template Collection
             object in it's place
-            @todo : function should handle parameters the same way as the import function does. By placing them in a params object. This will avoid discrepancies when loading from a static or dynamic template
-
              */
             var o,t,tmp,codeBlock='';
-            console.log(obj,target);
             if(typeof obj == 'object'){
                 for(o in obj){
                     if(pt.Collection[o].code == undefined){
@@ -938,7 +971,7 @@ var Pikl = {
                         }else {
                             var eachObject = template.split('}{@');
                             for(var e in eachObject){
-                                var templateObjectType,templateBlock,templateObjectSubType,templateObjectContent,templateParams,templateBlockOptions,templateOptions;
+                                var templateObjectType,templateBlock,templateObjectSubType,templateObjectContent,templateParams,templateBlockOptions,templateOptions=undefined,templateBlockAttributes,templateAttributes=undefined;
                                 eachObject[e] = eachObject[e].replace('{@','');
                                 templateObjectType = eachObject[e].split(' ')[0].split('.')[0];
                                 templateObjectSubType = eachObject[e].split(' ')[0].split('.')[1];
@@ -946,9 +979,13 @@ var Pikl = {
                                 eachObject[e] = eachObject[e].replace('{/'+templateObjectType+'}','').replace('{/'+templateObjectType,'').replace('}','').replace(templateObjectType+' ','');
                                 templateBlock = eachObject[e].split('params=[')[1].split(']')[0];
                                 templateParams = templateBlock.split(',');
-                                if(eachObject[e].indexOf('options') > -1) {
+                                if(eachObject[e].indexOf('options=[') > -1) {
                                     templateBlockOptions = eachObject[e].split('options=[')[1].split(']')[0];
                                     templateOptions = templateBlockOptions.split(',');
+                                }
+                                if(eachObject[e].indexOf('attributes=[') > -1) {
+                                    templateBlockAttributes = eachObject[e].split('attributes=[')[1].split(']')[0];
+                                    templateAttributes = templateBlockAttributes.split(',');
                                 }
                                 templateObject[templateObjectType] = {};
                                 if(templateObjectSubType !== undefined && templateObjectSubType !== ''){
@@ -961,20 +998,24 @@ var Pikl = {
                                         templateObject[templateObjectType][templateObjectSubType][_this[0]] = _this[1];
                                         templateObject[templateObjectType][templateObjectSubType]['content'] = templateObjectContent !== null && templateObjectContent !== undefined && templateObjectContent !== '' ? templateObjectContent : '';
                                         if(templateOptions !== undefined){
-                                            templateObject[templateObjectType][templateObjectSubType]['labels'] = collectOptions(templateOptions);
+                                            templateObject[templateObjectType][templateObjectSubType]['options'] = collectOptions(templateOptions);
+                                        }
+                                        if(templateAttributes !== undefined){
+                                            templateObject[templateObjectType][templateObjectSubType]['attributes'] = collectOptions(templateAttributes);
                                         }
                                     }else{
                                         templateObject[templateObjectType][_this[0]] = _this[0] !== undefined ? _this[1] : '';
                                         templateObject[templateObjectType]['content'] = templateObjectContent !== null && templateObjectContent !== undefined && templateObjectContent !== '' ? templateObjectContent : '';
                                         if(templateOptions !== undefined){
-                                            templateObject[templateObjectType]['labels'] = collectOptions(templateOptions);
+                                            templateObject[templateObjectType]['options'] = collectOptions(templateOptions);
+                                        }
+                                        if(templateAttributes !== undefined){
+                                            templateObject[templateObjectType]['attributes'] = collectOptions(templateAttributes);
                                         }
                                     }
                                 }
                             }
-                            console.log(templateObject)
                             pt.ParseContent(templateObject,targetItem);
-                            //template = targetContent.split('{@'+templateObjectType+'}')[1].split('{/'+templateObjectType+'}')[0];
                         }
                         break;
                     case 'layout':
