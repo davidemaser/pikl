@@ -8,8 +8,8 @@
 <body pikl="true">
 <pikl is="data" bind="features">{french}</pikl>
 <pikl is="data" bind="limits">{name}{#comma}</pikl>
-<pikl>{@calc}228{@divide}10{/calc}</pikl>
-<pikl>{@if day = 9 and month = 2}Say this{@else}say this instead{/if}</pikl>
+<pikl>{@calc}{#round}228{@divide}(10{@times}3){@add}186{@minus}(28{@divide}3){/calc}</pikl>
+<pikl>{@if day = 9 and month = 2 and year = 2017}Say this{@else}say this instead{/if}</pikl>
 <pikl>{@date}</pikl>
 <pikl>{@ajax}{@src=data/source.json,@index=features,@node=name,@repeat=true}{/ajax}</pikl>
 <pikl is="form">{@json}{"action":"action.php", "attributes":"class=\"this\" id=\"that\"", "name":"myForm", "items":[ { "element":"input", "event":{"handler":"click","function":"console.log('hello')"}, "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"textarea", "name":"aTextArea", "width":"20", "height":"5", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"checkbox", "name":"aCheckbox", "value":"aValue","label":"check this","checked":"true" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</pikl>
@@ -17,7 +17,7 @@
 this method gets the data from an external JSON file
 <pikl is="form">{@json}{@src=data/demoForm.json}{/json}</pikl>
 -->
-<pikl is="component">{@header cols=3,split=//}this is// text{/header}</pikl>
+<pikl is="component">{@header cols=3,split=//}this// is// text{/header}</pikl>
 <pikl is="layout">--div[this is the div thing]
     --p[this is,that is,this is not]*3
     --section[here I would put my content]</pikl>

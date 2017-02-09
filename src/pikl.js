@@ -27,7 +27,8 @@ var Pikl = {
             tplTag:{
                 element:'pikl',
                 replacement:'div'
-            }
+            },
+            domRoot:'body'
         },
         DateConditions:['day','month','year','hours','minutes','seconds'],
         Operators:['=','!=','>','<','<=','>='],
@@ -52,14 +53,14 @@ var Pikl = {
          */
         FadeOutOnClick: function (obj) {
             //{handler:'click',item:'',target:'',speed:500}
-            $('body').on(obj.handler, obj.item, function () {
+            $($p.Config.defaults.domRoot).on(obj.handler, obj.item, function () {
                 $(obj.target).animate({opacity: 0}, obj.speed, function () {
                     $(this).remove();
                 });
             });
         },
         SlideOutOnClick: function (obj) {
-            $('body').on(obj.handler, obj.item, function () {
+            $($p.Config.defaults.domRoot).on(obj.handler, obj.item, function () {
                 var itemWidth = obj.item.width;
                 $(obj.target).animate({left: -itemWidth}, obj.speed);
             });
@@ -95,14 +96,11 @@ var Pikl = {
             page section animation when the gutter toggle
             button is clicked
              */
-            var animationType = $('section[role="menu"]').attr('pikl-gutter-state') == 'visible' ? 'n' : 'p';
-            var gutterMenu = $('section[role="menu"]');
-            var pageBody = $('section[role="content"]');
-            var gutterWidth = gutterMenu.width();
+            var animationType = $('section[role="menu"]').attr('pikl-gutter-state') == 'visible' ? 'n' : 'p',gutterMenu = $('section[role="menu"]'),pageBody = $('section[role="content"]'),gutterWidth = gutterMenu.width(),gutterOffset,gutterState,bodyWidth;
             if(animationType == 'n'){
-                var gutterOffset = -gutterWidth;
-                var gutterState = 'invisible';
-                var bodyWidth = 0;
+                gutterOffset = -gutterWidth;
+                gutterState = 'invisible';
+                bodyWidth = 0;
             }else if(animationType == 'p'){
                 gutterOffset = 0;
                 gutterState = 'visible';
@@ -142,7 +140,7 @@ var Pikl = {
             return linkTemplate;
         },
         BuildList:function(content){
-            var filteredContent = {},contentParams,itemMain,itemList,itemArray,itemString='',listTemplate;
+            var filteredContent = {},contentParams,itemMain,itemList,itemArray,itemString='',listTemplate,builtList,a,linkParams,linkText;
             contentParams = content.split('{@')[1].split('}')[0];
             filteredContent.name = contentParams.indexOf('name') > -1 ? contentParams.split('name="')[1].split('"')[0] : null;
             filteredContent.class = contentParams.indexOf('class') > -1 ? contentParams.split('class="')[1].split('"')[0] : null;
@@ -154,41 +152,33 @@ var Pikl = {
             listTemplate = filteredContent.name !== null && filteredContent.name !== '' ? listTemplate.replace('{{name}}',filteredContent.name) : listTemplate.replace(' name="{{name}}"','');
             listTemplate = filteredContent.id !== null && filteredContent.id !== '' ? listTemplate.replace('{{id}}',filteredContent.id) : listTemplate.replace(' id="{{id}}"','');
             listTemplate = filteredContent.class !== null && filteredContent.class !== '' ? listTemplate.replace('{{class}}',filteredContent.class) : listTemplate.replace(' class="{{class}}"','');
-            for(var a in itemArray){
+            for(a in itemArray){
                 itemString += '<li>';
                 if(itemArray[a].indexOf('{#link') > -1){
-                    var linkParams = itemArray[a].split('{#link')[1].split('}')[0];
-                    var linkText = itemArray[a].split('{#link')[1].split('}')[1].split('{/link')[0];
+                    linkParams = itemArray[a].split('{#link')[1].split('}')[0];
+                    linkText = itemArray[a].split('{#link')[1].split('}')[1].split('{/link')[0];
                     itemString += pa.BuildLink(linkParams,linkText);
                 }else {
                     itemString += itemArray[a];
                 }
                 itemString += '</li>';
             }
-            var builtList = listTemplate.replace('{{listItems}}',itemString);
+            builtList = listTemplate.replace('{{listItems}}',itemString);
             return builtList;
         },
-        Calculate: function (a, b, c) {
-            switch (b) {
-                case 'times':
-                    return a * c;
-                    break;
-                case 'divide':
-                    return a / c;
-                    break;
-                case 'plus':
-                    return a + c;
-                    break;
-                default:
-                    return '';
-                    break;
-            }
+        Calculate: function (operation,math) {
+            /*
+            pass the operation as a string. The math argument can be
+            any of the javascript Math values (i.e. round,abs,floor...)
+             */
+            var result = eval(operation);
+            result = math !== undefined && math !== null ? Math[math](result) : result;
+            return result;
         },
         CleanUp: function (str) {
-            var list = ['id','class','name','attributes','style','header',' '];
-            for(var l in list){
+            var list = ['id','class','name','attributes','style','header',' '],l;
+            for(l in list){
                 str = str.replace(new RegExp('{{'+list[l]+'}}', 'g'), '');
-                //str = str.replace('{{'+list[l]+'}}', '');
             }
             return str;
         },
@@ -215,8 +205,7 @@ var Pikl = {
             }
         },
         Date: function (string,type) {
-            var currentData = new Date();
-            var formatDate = {};
+            var currentData = new Date(),formatDate = {};
             formatDate['day'] = currentData.getDate().toString().length == 1 ? parseInt('0'+currentData.getDate()) : currentData.getDate();
             formatDate['month'] = (currentData.getMonth()+1).toString().length == 1 ? parseInt('0'+(currentData.getMonth() + 1)) : currentData.getMonth() + 1;
             formatDate['year'] = currentData.getFullYear();
@@ -248,7 +237,7 @@ var Pikl = {
         RegisterEvents: function(obj){
             if(typeof obj == 'object'){
                 for(var o in obj){
-                    $('body').on(obj[o].handler,'[name="'+o+'"]',function(){
+                    $($p.Config.defaults.domRoot).on(obj[o].handler,'[name="'+o+'"]',function(){
                         $p.Assistants.ExecuteFunctionByName(obj[o].function, window);
                     });
                 }
@@ -267,7 +256,7 @@ var Pikl = {
         SplitContent:function(obj){
             obj.cols = obj.cols || 1;
             obj.split = obj.split || null;
-            var textArray = [];
+            var textArray = [],splitOffset,slicePosition,i,sliceStart;
             if(obj.cols !== undefined && obj.cols !== 1){
                 if (obj.split !== undefined && obj.split !== '' && obj.text.indexOf(obj.split) > -1) {
                     //we can start splitting at the split point
@@ -276,11 +265,11 @@ var Pikl = {
                     return textArray;
                 } else {
                     //we can start splitting based on the numeric value
-                    var splitOffset = Math.round(obj.text.length / obj.cols);
-                    var slicePosition = splitOffset;
-                    for (var i = 1; i < splitOffset; i++) {
+                    splitOffset = Math.round(obj.text.length / obj.cols);
+                    slicePosition = splitOffset;
+                    for (i = 1; i < splitOffset; i++) {
                         if (i == 1) {
-                            var sliceStart = 0
+                            sliceStart = 0
                         } else {
                             sliceStart = (i - 1) * splitOffset;
                         }
@@ -293,11 +282,11 @@ var Pikl = {
             }
         },
         SwapReserved:function(a){
-            var res = $p.Config.reserved;
-            for(var r in res){
+            var res = $p.Config.reserved,r,sub,s;
+            for(r in res){
                 if(typeof res[r] == 'object'){
-                    var sub = res[r];
-                    for(var s in sub){
+                    sub = res[r];
+                    for(s in sub){
                         if(a !== undefined) {
                             a = a.replace( new RegExp( s, 'g' ), sub[s] );
                         }
@@ -309,8 +298,7 @@ var Pikl = {
             return a;
         },
         TagBuilder:function(tag,multiplier,content){
-            console.log(tag,multiplier,content)
-            var s = {};
+            var s = {},tagDisplay,tagOutput,i;
             s.div = {tag:'<div>',close:true};
             s.br = {tag:'<br />',close:false};
             s.p = {tag:'<p>',close:true};
@@ -320,10 +308,10 @@ var Pikl = {
             s.section = {tag:'<section>',close:true};
             s.header = {tag:'<header>',close:true};
             s.footer = {tag:'<footer>',close:true};
-            var tagDisplay = s[tag].tag;
+            tagDisplay = s[tag].tag;
             if(multiplier !== undefined && multiplier !== null){
-                var tagOutput = '';
-                for(var i = 0;i<multiplier;i++){
+                tagOutput = '';
+                for(i = 0;i<multiplier;i++){
                     tagOutput += tagDisplay;
                     tagOutput += pa.SwapReserved(content[i]);
                     if(s[tag].close == true) {
@@ -374,10 +362,15 @@ var Pikl = {
         Footer:function(){
             var _this = $p.Components.Store.footer;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {};
-            template.parent = '<footer>{{content}}</footer>';
-            template.columns = {};
-            template.columns.multiple = '<div class="footer_column">{{content}}</div>';
+            var template = {
+                parent : '<footer>{{content}}</footer>',
+                columns : {},
+                template : {
+                    columns :{
+                        multiple : '<div class="footer_column">{{content}}</div>'
+                    }
+                }
+            };
             var childString = '';
             if(typeof content == 'object'){
                 if(Array.isArray(content)){
@@ -394,27 +387,29 @@ var Pikl = {
         Gutter:function(){
             var _this = $p.Components.Store.gutter;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {};
             var defaultState = 'visible';
-            template.parent = '<section role="menu"{{attributes}}>{{content}}</section>';
-            template.rows = {};
-            template.rows.multiple = '<div class="gutter_column">{{content}}</div>';
-            template.button = '<i class="pikl __gutter_button"></i>';
-            var childString = '';
+            var childString = '',c,compactString,attrString='',p;
+            var template = {
+                parent : '<section role="menu"{{attributes}}>{{content}}</section>',
+                rows : {
+                    multiple:'<div class="gutter_column">{{content}}</div>'
+                },
+                button : '<i class="pikl __gutter_button"></i>'
+            };
             if(typeof content == 'object'){
                 if(Array.isArray(content)){
-                    for(var c in content){
+                    for(c in content){
                         childString += template.rows.multiple.replace('{{content}}',content[c]);
                     }
                 }
-                var compactString = template.parent.replace('{{content}}',template.button+childString);
-                $('body').prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
+                compactString = template.parent.replace('{{content}}',template.button+childString);
+                $($p.Config.defaults.domRoot).prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
                 _this.target.remove();
                 console.log(compactString);
             }else{
-                var attrString = '';
+                attrString = '';
                 if(_this.param !== undefined && typeof _this.param == 'object'){
-                    for(var p in _this.param){
+                    for(p in _this.param){
                         attrString += ' pikl-gutter-'+p+'="'+_this.param[p]+'"';
                         if(p == 'state'){
                             defaultState = _this.param[p];
@@ -423,28 +418,30 @@ var Pikl = {
                 }
                 compactString = template.parent.replace('{{content}}',template.button+_this.text);
                 compactString = compactString.replace('{{attributes}}',attrString);
-                $('body').prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
+                $($p.Config.defaults.domRoot).prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
                 _this.target.remove();
             }
-            $('body').on('click','.pikl.__gutter_button',function(){
+            $($p.Config.defaults.domRoot).on('click','.pikl.__gutter_button',function(){
                 $p.Assistants.ExecuteFunctionByName('pan.GutterStateMotion', window);
             });
         },
         Header:function(){
             var _this = $p.Components.Store.header;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {};
-            template.parent = '<header>{{content}}</header>';
-            template.columns = {};
-            template.columns.multiple = '<div class="header_column">{{content}}</div>';
-            var childString = '';
+            var template = {
+                parent : '<header>{{content}}</header>',
+                columns : {
+                    multiple : '<div class="header_column">{{content}}</div>'
+                }
+            };
+            var childString = '',c,compactString;
             if(typeof content == 'object'){
                 if(Array.isArray(content)){
-                    for(var c in content){
+                    for(c in content){
                         childString += template.columns.multiple.replace('{{content}}',content[c]);
                     }
                 }
-                var compactString = template.parent.replace('{{content}}',childString);
+                compactString = template.parent.replace('{{content}}',childString);
                 $(compactString).insertBefore(_this.target);
                 _this.target.remove();
             }
@@ -452,18 +449,20 @@ var Pikl = {
         Navigation:function(){
             var _this = $p.Components.Store.navigation;
             var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {};
-            template.parent = '<nav>{{content}}</nav>';
-            template.columns = {};
-            template.columns.multiple = '<div class="nav_column">{{content}}</div>';
-            var childString = '';
+            var template = {
+                parent : '<nav>{{content}}</nav>',
+                columns : {
+                    multiple : '<div class="nav_column">{{content}}</div>'
+                }
+            };
+            var childString = '',c,compactString;
             if(typeof content == 'object'){
                 if(Array.isArray(content)){
-                    for(var c in content){
+                    for(c in content){
                         childString += template.columns.multiple.replace('{{content}}',content[c]);
                     }
                 }
-                var compactString = template.parent.replace('{{content}}',childString);
+                compactString = template.parent.replace('{{content}}',childString);
                 console.log(compactString);
             }
             function buildNavHierarchy(obj){
@@ -508,23 +507,24 @@ var Pikl = {
                     var modalName = obj.name;
                     var buttonString = '';
                     var modalString = this.Structure.default.replace('{{name}}',modalName);
+                    var o,subObj,s,buttons,b;
                     if (_this.Store[modalName] == undefined) {
                         _this.Store[modalName] = {};
                         /*
                          store the modal in the parent object so that
                          it can be recalled by name later.
                          */
-                        for(var o in obj){
+                        for(o in obj){
                             _this.Store[modalName][o] = obj[o];
                             if(typeof obj[o] == 'object'){
-                                var subObj = obj[o];
-                                for(var s in subObj){
+                                subObj = obj[o];
+                                for(s in subObj){
                                     if(typeof subObj[s] !== 'object'){
                                         modalString = modalString.replace('{{'+s+'}}',subObj[s]);
                                     }else{
                                         // it's an object so it's going to be the buttons
-                                        var buttons = subObj[s];
-                                        for(var b in buttons){
+                                        buttons = subObj[s];
+                                        for(b in buttons){
                                             buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
                                         }
                                     }
@@ -601,14 +601,14 @@ var Pikl = {
             name:'name="{{handle}}"'
         },
         HandleContent:function(obj,target){
+            var objArray=[],o,thisObj,code,t,to;
             console.log(obj,target);
             if(typeof obj == 'object'){
-                var objArray = [];
-                for(var o in obj){
-                    var thisObj = obj[o];
+                for(o in obj){
+                    thisObj = obj[o];
                     if(thisObj.code !== undefined){
-                        var code = thisObj.code;
-                        for(var t in thisObj){
+                        code = thisObj.code;
+                        for(t in thisObj){
                             code = code.replace('{{'+t+'}}',thisObj[t]);
                         }
                         objArray.push(code);
@@ -617,7 +617,7 @@ var Pikl = {
                             thisObj = thisObj[t];
                             if(typeof thisObj == 'object'){
                                 code = thisObj.code;
-                                for(var to in thisObj){
+                                for(to in thisObj){
                                     code = code.replace('{{'+to+'}}',thisObj[to]);
                                     console.log(to,thisObj[to]);
                                 }
@@ -633,17 +633,18 @@ var Pikl = {
             $(target).remove();
         },
         ParseContent:function(obj,target){
-            var accepts = {};
-            accepts.select = ['option','value'];
-            accepts.button = ['repeat','attributes','class','id','event'];
+            var accepts = {
+                select : ['option','value'],
+                button : ['repeat','attributes','class','id','event']
+            };
+            var o,_this,_typeTemplate,_repeat,t,_inlineObj,_parent,_child,_outputTemplate,_formattedString,_outputString,_outputWrapper,th,options,op;
             if(typeof obj == 'object'){
-                for(var o in obj){
-                    var _this = obj[o];
-                    var _typeTemplate = $p.Templates.Collection[o].code;
-                    var _repeat = obj[o].repeat !== undefined && obj[o].repeat !== null ? parseInt(obj[o].repeat) : 1;
-                    var _inlineObj,_parent,_child,_outputTemplate,_formattedString,_outputString,_outputWrapper;
+                for(o in obj){
+                    _this = obj[o];
+                    _typeTemplate = $p.Templates.Collection[o].code;
+                    _repeat = obj[o].repeat !== undefined && obj[o].repeat !== null ? parseInt(obj[o].repeat) : 1;
                     if(typeof _this == 'object' && obj.hasOwnProperty(o)){
-                        for(var t in _this){
+                        for(t in _this){
                             if (typeof _this[t] !== 'object') {
                                 if(pt.Inline[t] == undefined){
                                     _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
@@ -663,15 +664,15 @@ var Pikl = {
                                 }else{
                                     if(typeof _this === 'object'){
                                         //console.log('inline not',o,obj[o],t,_this[t])
-                                        for(var th in _this){
+                                        for(th in _this){
                                             _formattedString += _this[th][0]+'="'+_this[th][1]+'" ';
                                         }
                                     }
                                     _typeTemplate = _typeTemplate.replace('{{'+t+'}}',_formattedString);
                                 }
                                 if(_this.options !== undefined){
-                                    var options = _this.options;
-                                    for(var op in options){
+                                    options = _this.options;
+                                    for(op in options){
                                         _formattedString += _outputString.replace('{{value}}',options[op][1]).replace('{{label}}',options[op][0]);
                                     }
                                     _typeTemplate = '<'+_outputWrapper+'>'+_formattedString+'</'+_outputWrapper+'>';
@@ -722,21 +723,22 @@ var Pikl = {
             stores it by it's name in the Template Collection
             object. It can then be called by name
              */
+            var templateParams,templateModel,exists,templateContent,p,subObject;
             if(obj.indexOf('params')>-1){
-                var templateParams = obj.split('params=[')[1].split(']')[0].split(',');
+                templateParams = obj.split('params=[')[1].split(']')[0].split(',');
                 //remove the params string after we've imported it
                  obj = obj.replace(' params=['+templateParams+']','');
             }
-            var templateModel = obj.split('model=')[1].split('}')[0];
-            var exists = pt.Collection[templateModel] !== undefined;
+            templateModel = obj.split('model=')[1].split('}')[0];
+            exists = pt.Collection[templateModel] !== undefined;
             if(exists !== true) {
-                var templateContent = obj.split('}')[1].split('{')[0];
+                templateContent = obj.split('}')[1].split('{')[0];
                 pt.Collection[templateModel] = {};
                 pt.Collection[templateModel]['code'] = templateContent;
                 if (templateParams !== undefined && templateParams !== '') {
                     pt.Collection[templateModel]['params'] = {};
-                    for (var p in templateParams) {
-                        var subObject = templateParams[p].split('=');
+                    for (p in templateParams) {
+                        subObject = templateParams[p].split('=');
                         pt.Collection[templateModel]['params'][subObject[0]] = subObject[1];
                     }
                 } else {
@@ -757,17 +759,18 @@ var Pikl = {
          */
         Template:'<section pikl-widget="flash" pikl-flash="{{type}}" {{style}}><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
         Build:function(obj) {
+            var type,title,message,delay,style,codeBlock;
             if($('section[pikl-widget="flash"]').length !== 0){
                 console.log('Flash object is already open')
             }else{
                 if (obj !== undefined && typeof obj == 'object') {
-                    var type = obj.type;
-                    var title = obj.title;
-                    var message = obj.message;
-                    var delay = parseInt(obj.delay) || 2500;
-                    var style = 'style="bottom:-160px;"';
-                    var codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message).replace('{{style}}', style);
-                    $('body').prepend(codeBlock);
+                    type = obj.type;
+                    title = obj.title;
+                    message = obj.message;
+                    delay = parseInt(obj.delay) || 2500;
+                    style = 'style="bottom:-160px;"';
+                    codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message).replace('{{style}}', style);
+                    $($p.Config.defaults.domRoot).prepend(codeBlock);
                     $.when(
                         pan.SlideIntoPosition({
                             object: 'section[pikl-widget="flash"]',
@@ -815,13 +818,12 @@ var Pikl = {
                     handleFormItem(formTemplate, formItems);
                 }
                 function handleFormItem(template, obj) {
-                    var string = '';
-                    var events = {};
-                    for (var o in obj) {
-                        var tempObject = obj[o];
-                        var formType = obj[o].element;
-                        var formItemID = obj[o].id !== undefined && obj[o].id !== '' ? ' id="'+obj[o].id+'"': '' ;
-                        var formItemClass = obj[o].class !== undefined && obj[o].class !== '' ? ' class="'+obj[o].class+'"': '' ;
+                    var string = '',events = {},o,tempObject,formType,formItemID,formItemClass,t,optionObject,optionString,a;
+                    for (o in obj) {
+                        tempObject = obj[o];
+                        formType = obj[o].element;
+                        formItemID = obj[o].id !== undefined && obj[o].id !== '' ? ' id="'+obj[o].id+'"': '' ;
+                        formItemClass = obj[o].class !== undefined && obj[o].class !== '' ? ' class="'+obj[o].class+'"': '' ;
                         if($.inArray(formType,pf.closures)>-1) {
                             if(obj[o].event !== undefined && typeof obj[o].event == 'object'){
                                 events[obj[o].name] = obj[o].event;
@@ -851,11 +853,11 @@ var Pikl = {
                                 string += obj[o].height !== undefined && obj[o].height !== '' ? ' height="'+obj[o].height+'"' : '';
                                 string += '>' + obj[o].value + '</textarea>';
                             }
-                            for (var t in tempObject) {
+                            for (t in tempObject) {
                                 if (typeof tempObject[t] == 'object') {
-                                    var optionObject = tempObject[t];
-                                    var optionString = '';
-                                    for (var a in optionObject) {
+                                    optionObject = tempObject[t];
+                                    optionString = '';
+                                    for (a in optionObject) {
                                         optionString += '<option name="' + optionObject[a].name + '">' + optionObject[a].value + '</option>';
                                     }
                                 }
@@ -875,7 +877,7 @@ var Pikl = {
     },
     Init:{
         PiklWrapper:function(){
-            $('body').contents().wrapAll('<section role="content" pikl-has-gutter="false" class="dill">');
+            $($p.Config.defaults.domRoot).contents().wrapAll('<section role="content" pikl-has-gutter="false" class="dill">');
         },
         Json:function(){
             var useFormat = $('html').attr('pikl-use');
@@ -915,150 +917,144 @@ var Pikl = {
                 }
             });
         },
-        Content:function(node){
+        Content: function (node) {
             /*
-            Cycles through all pikl markup objects (<pikl>) and sends
-            each accepted object to it's corresponding function.
-            Each object will be treated by it's parent object
-            function
+             Cycles through all pikl markup objects (<pikl>) and sends
+             each accepted object to it's corresponding function.
+             Each object will be treated by it's parent object
+             function
              */
-            var appendComma = false, targetObject = {}, targetItem, targetBinding,targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText, objectIndex, calcString, calcMethod,
-                calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, templateObject, tag,
-                c, d, l, p, t, r;
-            node = node || '[pikl="true"]';
-            $('pikl').each(function(){
+            var appendComma = false, targetObject = {}, targetItem, targetBinding, targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText = {}, objectIndex, calcString, mathOperators,
+                calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject = {},
+                returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _labels = {}, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
+                templateBlock, templateObjectSubType, templateObjectContent, templateParams, templateBlockOptions, templateOptions = undefined, templateBlockAttributes, templateAttributes = undefined, objectLength, jsonPath,
+                calc, dateUnit, timeUnit, node = node || '[pikl="true"]';
+            $($p.Config.defaults.tplTag.element).each(function () {
                 keyString = '';
                 targetBinding = $(this).attr('is');
                 targetDataBinding = $(this).attr('bind');
                 targetObject = pi[targetDataBinding];
-                targetContent = $(this).html().replace(/(\r\n|\n|\r)/gm,'').replace(/\}\s+\{/g,'}{');
+                targetContent = $(this).html().replace(/(\r\n|\n|\r)/gm, '').replace(/\}\s+\{/g, '}{');
                 targetItem = $(this);
                 tag = $p.Config.defaults.tplTag.replacement;
-                switch(targetBinding) {
+                switch (targetBinding) {
                     case 'component':
-                        var componentType,componentParams,componentParamsObj,componentText,p,paramArray;
                         componentType = targetContent.split('{@')[1].split(' ')[0];
-                        if(targetContent.split('{@')[1].split(' ')[1] !== undefined){
+                        if (targetContent.split('{@')[1].split(' ')[1] !== undefined) {
                             componentParams = targetContent.split('{@')[1].split(' ')[1].split('}')[0].split(',');
-                        }else{
+                        } else {
                             componentParams = null
                         }
                         componentParamsObj = {};
-                        if(targetContent.indexOf('{@json}') > -1){
+                        if (targetContent.indexOf('{@json}') > -1) {
                             componentText = targetContent.split('{@json}')[1].split('{/json}')[0];
-                        }else{
+                        } else {
                             componentText = targetContent.split('}')[1].split('{')[0];
                         }
-                        for(p in componentParams){
-                            if(componentParams.hasOwnProperty(p)){
+                        for (p in componentParams) {
+                            if (componentParams.hasOwnProperty(p)) {
                                 paramArray = componentParams[p].split('=');
                                 componentParamsObj[paramArray[0]] = paramArray[1];
                             }
                         }
-                        $p.Components.Build(componentType,componentParamsObj,componentText,$(this));
+                        $p.Components.Build(componentType, componentParamsObj, componentText, $(this));
                         break;
                     case 'template':
-                        function collectOptions(options){
-                            if(options !== undefined) {
-                                var _labels = {};
-                                for (var o in options) {
-                                    var _options = options[o];
-                                    _options = _options.split('=');
-                                    if (_options !== undefined && _this !== null && _this !== '') {
-                                        _labels[o] = _options;
-                                    }
+                    function collectOptions(options) {
+                        if (options !== undefined) {
+                            for (o in options) {
+                                _options = options[o];
+                                _options = _options.split('=');
+                                if (_options !== undefined && _this !== null && _this !== '') {
+                                    _labels[o] = _options;
                                 }
-                                return _labels;
                             }
+                            return _labels;
                         }
-                        var template = targetContent;
-                        var templateObject = {};
-                        if(targetContent.indexOf('@import')>-1){
-                            $p.Templates.Import(targetContent,targetItem);
-                        }else {
+                    }
+
+                        template = targetContent;
+                        if (targetContent.indexOf('@import') > -1) {
+                            $p.Templates.Import(targetContent, targetItem);
+                        } else {
                             var eachObject = template.split('}{@');
-                            for(var e in eachObject){
-                                var templateObjectType,templateBlock,templateObjectSubType,templateObjectContent,templateParams,templateBlockOptions,templateOptions=undefined,templateBlockAttributes,templateAttributes=undefined;
-                                eachObject[e] = eachObject[e].replace('{@','');
+                            for (e in eachObject) {
+                                eachObject[e] = eachObject[e].replace('{@', '');
                                 templateObjectType = eachObject[e].split(' ')[0].split('.')[0];
                                 templateObjectSubType = eachObject[e].split(' ')[0].split('.')[1];
-                                templateObjectContent = eachObject[e].split('{/'+templateObjectType)[0].split('}')[1];
-                                eachObject[e] = eachObject[e].replace('{/'+templateObjectType+'}','').replace('{/'+templateObjectType,'').replace('}','').replace(templateObjectType+' ','');
+                                templateObjectContent = eachObject[e].split('{/' + templateObjectType)[0].split('}')[1];
+                                eachObject[e] = eachObject[e].replace('{/' + templateObjectType + '}', '').replace('{/' + templateObjectType, '').replace('}', '').replace(templateObjectType + ' ', '');
                                 templateBlock = eachObject[e].split('params=[')[1].split(']')[0];
                                 templateParams = templateBlock.split(',');
-                                if(eachObject[e].indexOf('options=[') > -1) {
+                                if (eachObject[e].indexOf('options=[') > -1) {
                                     templateBlockOptions = eachObject[e].split('options=[')[1].split(']')[0];
                                     templateOptions = templateBlockOptions.split(',');
                                 }
-                                if(eachObject[e].indexOf('attributes=[') > -1) {
+                                if (eachObject[e].indexOf('attributes=[') > -1) {
                                     templateBlockAttributes = eachObject[e].split('attributes=[')[1].split(']')[0];
                                     templateAttributes = templateBlockAttributes.split(',');
                                 }
                                 templateObject[templateObjectType] = {};
-                                if(templateObjectSubType !== undefined && templateObjectSubType !== ''){
+                                if (templateObjectSubType !== undefined && templateObjectSubType !== '') {
                                     templateObject[templateObjectType][templateObjectSubType] = {};
                                 }
-                                for(p in templateParams){
+                                for (p in templateParams) {
                                     _this = templateParams[p];
                                     _this = _this.split('=');
-                                    if(typeof templateObject[templateObjectType][templateObjectSubType] == 'object'){
+                                    if (typeof templateObject[templateObjectType][templateObjectSubType] == 'object') {
                                         templateObject[templateObjectType][templateObjectSubType][_this[0]] = _this[1];
                                         templateObject[templateObjectType][templateObjectSubType]['content'] = templateObjectContent !== null && templateObjectContent !== undefined && templateObjectContent !== '' ? templateObjectContent : '';
-                                        if(templateOptions !== undefined){
+                                        if (templateOptions !== undefined) {
                                             templateObject[templateObjectType][templateObjectSubType]['options'] = collectOptions(templateOptions);
                                         }
-                                        if(templateAttributes !== undefined){
+                                        if (templateAttributes !== undefined) {
                                             templateObject[templateObjectType][templateObjectSubType]['attributes'] = collectOptions(templateAttributes);
                                         }
-                                    }else{
+                                    } else {
                                         templateObject[templateObjectType][_this[0]] = _this[0] !== undefined ? _this[1] : '';
                                         templateObject[templateObjectType]['content'] = templateObjectContent !== null && templateObjectContent !== undefined && templateObjectContent !== '' ? templateObjectContent : '';
-                                        if(templateOptions !== undefined){
+                                        if (templateOptions !== undefined) {
                                             templateObject[templateObjectType]['options'] = collectOptions(templateOptions);
                                         }
-                                        if(templateAttributes !== undefined){
+                                        if (templateAttributes !== undefined) {
                                             templateObject[templateObjectType]['attributes'] = collectOptions(templateAttributes);
                                         }
                                     }
                                 }
                             }
-                            pt.ParseContent(templateObject,targetItem);
+                            pt.ParseContent(templateObject, targetItem);
                         }
                         break;
                     case 'layout':
-                        console.log(targetContent.split('--'))
                         layoutObjects = targetContent.split('--');
                         objectIndex = 0;
-                        for(l in layoutObjects){
-                            var objectLength = layoutObjects.length;
-                            if(layoutObjects[l] !== undefined && layoutObjects[l] !== '') {
-                                if(layoutObjects[l].indexOf('[')>-1 && layoutObjects[l].indexOf(']')>-1){
+                        for (l in layoutObjects) {
+                            objectLength = layoutObjects.length;
+                            if (layoutObjects[l] !== undefined && layoutObjects[l] !== '') {
+                                if (layoutObjects[l].indexOf('[') > -1 && layoutObjects[l].indexOf(']') > -1) {
                                     nodeContent = layoutObjects[l].split('[')[1].split(']')[0];
-                                    sliceText = {};
                                     sliceText.start = layoutObjects[l].indexOf('[');
                                     sliceText.end = layoutObjects[l].indexOf(']');
                                     sliceText.content = nodeContent;
-                                    toRemove = layoutObjects[l].slice(sliceText.start,sliceText.end+1);
-                                    cleanObject = layoutObjects[l].replace(toRemove,'').trim();
-                                    console.log(sliceText,toRemove,cleanObject);
-
-                                }else{
+                                    toRemove = layoutObjects[l].slice(sliceText.start, sliceText.end + 1);
+                                    cleanObject = layoutObjects[l].replace(toRemove, '').trim();
+                                } else {
                                     sliceText = {};
                                     cleanObject = layoutObjects[l];
                                 }
-                                if(sliceText.content !== undefined && sliceText.content.indexOf(',') > -1){
+                                if (sliceText.content !== undefined && sliceText.content.indexOf(',') > -1) {
                                     passContent = sliceText.content.split(',');
-                                }else{
+                                } else {
                                     passContent = sliceText.content;
                                 }
-                                if(layoutObjects[l].indexOf('*')>-1){
-                                    $(pa.TagBuilder(cleanObject.split('*')[0],cleanObject.split('*')[1],passContent)).insertBefore($(this));
-                                }else{
-                                    $(pa.TagBuilder(cleanObject,null,passContent)).insertBefore($(this));
+                                if (layoutObjects[l].indexOf('*') > -1) {
+                                    $(pa.TagBuilder(cleanObject.split('*')[0], cleanObject.split('*')[1], passContent)).insertBefore($(this));
+                                } else {
+                                    $(pa.TagBuilder(cleanObject, null, passContent)).insertBefore($(this));
                                 }
                             }
-                            objectIndex ++;
-                            if(objectIndex == objectLength){
+                            objectIndex++;
+                            if (objectIndex == objectLength) {
                                 $(this).remove();
                             }
                         }
@@ -1070,15 +1066,20 @@ var Pikl = {
                     case 'form':
                         if (targetContent.indexOf('@') > -1) {
                             conditional = targetContent.split('@')[1].split('}')[0];
-                            if(conditional == 'json'){
-                                if(targetContent.indexOf('{@src') > -1){
-                                    var jsonPath = targetContent.split('{@src=')[1].split('}')[0];
+                            if (conditional == 'json') {
+                                if (targetContent.indexOf('{@src') > -1) {
+                                    jsonPath = targetContent.split('{@src=')[1].split('}')[0];
                                     pa.Ajax(jsonPath).done(function (result) {
                                         pf.Build(result, targetItem);
                                     }).fail(function () {
-                                        $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
+                                        $p.Flash.Build({
+                                            type: 'error',
+                                            title: 'JSON Error',
+                                            message: 'Unable to load JSON data. Verify that the json file exists',
+                                            delay: 10000
+                                        })
                                     });
-                                }else{
+                                } else {
                                     targetContent = targetContent.replace('{@json}', '').replace('{/json}', '');
                                     pf.Build(JSON.parse(targetContent), targetItem);
                                 }
@@ -1098,11 +1099,11 @@ var Pikl = {
                         }
                         keyString = keyString.trim();
                         keyString = keyString.slice(-1) == ',' ? keyString.substring(0, keyString.length - 1) : keyString;
-                        $('<'+tag+'>' + keyString + '</'+tag+'>').insertBefore($(this));
+                        $('<' + tag + '>' + keyString + '</' + tag + '>').insertBefore($(this));
                         $(this).remove();
                         break;
                 }
-                if($(this).parent().attr('is') !== 'form'){
+                if ($(this).parent().attr('is') !== 'form') {
                     if (targetContent.indexOf('@') > -1) {
                         //we have functions
                         conditional = targetContent.split('@')[1].split('}')[0];
@@ -1115,24 +1116,24 @@ var Pikl = {
                         switch (conditionType) {
                             case 'if':
                                 var conditionCheck = {
-                                    date:['day','month','year'],
-                                    time:['hour','minute','second']
+                                    date: ['day', 'month', 'year'],
+                                    time: ['hour', 'minute', 'second']
                                 };
-                                var dateUnit = pa.Date(false,'date');
-                                var timeUnit = pa.Date(false,'time');
+                                dateUnit = pa.Date(false, 'date');
+                                timeUnit = pa.Date(false, 'time');
                                 if (conditionArgument.indexOf('and') > -1) {
                                     conditionArgument = conditionArgument.split('and');
                                 }
                                 for (c in conditionArgument) {
-                                    var calc = conditionArgument[c].trim();
+                                    calc = conditionArgument[c].trim();
                                     calc = calc.split(' ');
                                     for (d in calc) {
                                         if ($.inArray(calc[d], $p.Config.DateConditions) > -1) {
                                             if (pa.Comparison(dateUnit[calc[d]], calc[1], parseInt(calc[2]))) {
-                                                $('<'+tag+'>' + conditionCase.true + '</'+tag+'>').insertBefore($(this));
+                                                $('<' + tag + '>' + conditionCase.true + '</' + tag + '>').insertBefore($(this));
                                                 $(this).remove();
                                             } else {
-                                                $('<'+tag+'>' + conditionCase.false + '</'+tag+'>').insertBefore($(this));
+                                                $('<' + tag + '>' + conditionCase.false + '</' + tag + '>').insertBefore($(this));
                                                 $(this).remove();
                                             }
                                         }
@@ -1140,22 +1141,46 @@ var Pikl = {
                                 }
                                 break;
                             case 'calc':
-                                calcString = targetContent.replace('{@calc}', '').replace('{/calc}', '');
-                                calcMethod = calcString.split('{@')[1].split('}')[0];
-                                calcValues = calcString.split('{@' + calcMethod + '}');
-                                $('<'+tag+'>' + pa.Calculate(calcValues[0], calcMethod, calcValues[1]) + '</'+tag+'>').insertBefore($(this));
+                                try {
+                                    mathOperators = ['abs','acos','asin','atan','ceil','cos','exp','floor','log','round','sin','sqrt','tan'];
+                                    calcString = targetContent.replace('{@calc}', '').replace('{/calc}', '');
+                                    if (calcString.indexOf('{#') > -1) {
+                                        calcMath = calcString.split('{#')[1].split('}')[0];
+                                        calcString = calcString.replace('{#' + calcMath + '}', '');
+                                    }
+                                    calcObject.multiply = {input: 'times', output: '*'};
+                                    calcObject.divide = {input: 'divide', output: '/'};
+                                    calcObject.subtract = {input: 'subtract', output: '-'};
+                                    calcObject.minus = {input: 'minus', output: '-'};
+                                    calcObject.add = {input: 'add', output: '+'};
+                                    for (c in calcObject) {
+                                        calcString = calcString.replace(new RegExp('{@' + calcObject[c].input + '}', 'g'), calcObject[c].output);
+                                    }
+                                    calcMath = $.inArray(calcMath,mathOperators) ? calcMath : null ;
+                                    $('<' + tag + '>' + pa.Calculate(calcString, calcMath || null) + '</' + tag + '>').insertBefore($(this));
+                                }catch(e){
+                                    /*
+                                     assuming tat the math operator will be the main cause of errors
+                                     execute the Calculate function without it. If it fails, then
+                                     log an error
+                                     */
+                                    try {
+                                        $('<' + tag + '>' + pa.Calculate(calcString) + '</' + tag + '>').insertBefore($(this));
+                                    }catch(e){
+                                        console.log('Unable to execute the mathematical operation')
+                                    }
+                                }
                                 $(this).remove();
                                 break;
                             case 'date':
                                 dateString = targetContent.replace('{@date}', '').replace('{/date}', '');
-                                $('<'+tag+'>' + pa.Date(true,'date') + '</'+tag+'>').insertBefore($(this));
+                                $('<' + tag + '>' + pa.Date(true, 'date') + '</' + tag + '>').insertBefore($(this));
                                 $(this).remove();
                                 break;
                             case 'ajax':
                                 var _ajaxTarget = targetItem;
                                 ajaxString = targetContent.replace('{@ajax}', '').replace('{/ajax}', '');
                                 ajaxParams = ajaxString.split(',');
-                                ajaxObject = {};
                                 returnedData = '';
                                 for (p in ajaxParams) {
                                     param = ajaxParams[p].split('=')[0].replace('}', '').replace('{', '').replace('@', '');
@@ -1171,10 +1196,15 @@ var Pikl = {
                                             returnedData += ajaxObject.node !== undefined && ajaxObject.node !== '' ? result[r][ajaxObject.node] !== undefined ? result[r][ajaxObject.node] + ' ' : '' : result[r] + ' ';
                                         }
                                     }
-                                    $('<'+tag+'>' + returnedData + '</'+tag+'>').insertBefore($(_ajaxTarget));
+                                    $('<' + tag + '>' + returnedData + '</' + tag + '>').insertBefore($(_ajaxTarget));
                                     $(_ajaxTarget).remove();
                                 }).fail(function () {
-                                    $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
+                                    $p.Flash.Build({
+                                        type: 'error',
+                                        title: 'JSON Error',
+                                        message: 'Unable to load JSON data. Verify that the json file exists',
+                                        delay: 5000
+                                    })
                                 });
                                 break;
                         }
@@ -1183,24 +1213,29 @@ var Pikl = {
             });
         }
     },
-    Validators:{
-        json:function(code){
-            try{
+    Validators: {
+        json: function (code) {
+            try {
                 return JSON.parse(code);
-            }catch(e){
-                $p.Flash.Build({type:'error',title:'JSON Parse Error',message:'Unable to parse JSON '+e,delay:10000})
+            } catch (e) {
+                $p.Flash.Build({
+                    type: 'error',
+                    title: 'JSON Parse Error',
+                    message: 'Unable to parse JSON ' + e,
+                    delay: 10000
+                })
             }
 
         },
-        html:function(code){
+        html: function (code) {
             /*
-            this is an extremely simplistic html validator. It will perform
-            low level validations but might overlook certain common errors
-            or tasks that are usually browser side.
+             this is an extremely simplistic html validator. It will perform
+             low level validations but might overlook certain common errors
+             or tasks that are usually browser side.
              */
-                var doc = document.createElement('div');
-                doc.innerHTML = code;
-                return ( doc.innerHTML === code );
+            var doc = document.createElement('div');
+            doc.innerHTML = code;
+            return ( doc.innerHTML === code );
         }
     },
     Widgets:{
