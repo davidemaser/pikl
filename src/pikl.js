@@ -25,7 +25,7 @@ var Pikl = {
         comments:'{..}',
         defaults:{
             tplTag:{
-                element:'pkl',
+                element:'pikl',
                 replacement:'div'
             }
         },
@@ -214,19 +214,22 @@ var Pikl = {
                     break;
             }
         },
-        Date: function (string) {
+        Date: function (string,type) {
             var currentData = new Date();
             var formatDate = {};
-            formatDate['day'] = currentData.getDate();
-            formatDate['month'] = currentData.getMonth() + 1;
+            formatDate['day'] = currentData.getDate().toString().length == 1 ? parseInt('0'+currentData.getDate()) : currentData.getDate();
+            formatDate['month'] = (currentData.getMonth()+1).toString().length == 1 ? parseInt('0'+(currentData.getMonth() + 1)) : currentData.getMonth() + 1;
             formatDate['year'] = currentData.getFullYear();
             formatDate['hours'] = currentData.getHours();
             formatDate['minutes'] = currentData.getMinutes();
             formatDate['seconds'] = currentData.getSeconds();
-            if(string == true){
-                return formatDate['month']+'/'+formatDate['day']+'/'+formatDate['year']+' '+formatDate['hours']+':'+formatDate['minutes']+':'+formatDate['seconds']
-            }else{
-                return formatDate;
+            switch (type) {
+                case 'date':
+                    return string == true ? formatDate['month']+'/'+formatDate['day']+'/'+formatDate['year'] : formatDate;
+                    break;
+                case 'time':
+                    return string == true ? formatDate['hours']+':'+formatDate['minutes']+':'+formatDate['seconds'] : formatDate;
+                    break;
             }
         },
         ExecuteFunctionByName: function (functionName, context , args ) {
@@ -790,7 +793,7 @@ var Pikl = {
         closures:['select','input','button','textarea','form'],
         Build:function(obj,target){
             if(obj !== undefined && typeof obj == 'object') {
-                target = target || $('pkl[is="form"]');
+                target = target || $('pikl[is="form"]');
                 var formTemplate = '<form {{attributes}} name="{{name}}" action="{{action}}">{{formItems}}</form>';
                 var formObject = {};
                 $.each(obj, function (key, value) {
@@ -874,8 +877,8 @@ var Pikl = {
             $('body').contents().wrapAll('<section role="content" pikl-has-gutter="false" class="dill">');
         },
         Json:function(){
-            var useFormat = $('html').attr('pkl-use');
-            var useSource = $('html').attr('pkl-src');
+            var useFormat = $('html').attr('pikl-use');
+            var useSource = $('html').attr('pikl-src');
             if(useFormat !== undefined && useFormat == 'json'){
                 if(useSource !== undefined && useSource !== ''){
                     var ajaxCallUrl = useSource || $p.Config.Ajax.default;
@@ -913,7 +916,7 @@ var Pikl = {
         },
         Content:function(node){
             /*
-            Cycles through all pkl markup objects (<pkl>) and sends
+            Cycles through all pikl markup objects (<pikl>) and sends
             each accepted object to it's corresponding function.
             Each object will be treated by it's parent object
             function
@@ -922,7 +925,7 @@ var Pikl = {
                 calcValues, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject, returnedData, param, value, templateObject, tag,
                 c, d, l, p, t, r;
             node = node || '[pikl="true"]';
-            $('pkl').each(function(){
+            $('pikl').each(function(){
                 keyString = '';
                 targetBinding = $(this).attr('is');
                 targetDataBinding = $(this).attr('bind');
@@ -1107,7 +1110,12 @@ var Pikl = {
                         }
                         switch (conditionType) {
                             case 'if':
-                                var dateUnit = pa.Date();
+                                var conditionCheck = {
+                                    date:['day','month','year'],
+                                    time:['hour','minute','second']
+                                };
+                                var dateUnit = pa.Date(false,'date');
+                                var timeUnit = pa.Date(false,'time');
                                 if (conditionArgument.indexOf('and') > -1) {
                                     conditionArgument = conditionArgument.split('and');
                                 }
@@ -1136,7 +1144,7 @@ var Pikl = {
                                 break;
                             case 'date':
                                 dateString = targetContent.replace('{@date}', '').replace('{/date}', '');
-                                $('<'+tag+'>' + pa.Date(true) + '</'+tag+'>').insertBefore($(this));
+                                $('<'+tag+'>' + pa.Date(true,'date') + '</'+tag+'>').insertBefore($(this));
                                 $(this).remove();
                                 break;
                             case 'ajax':
