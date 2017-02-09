@@ -254,6 +254,13 @@ var Pikl = {
         Repeat: function (str, times) {
             return new Array(times + 1).join(str);
         },
+        ReplaceHandle: function (a, b) {
+            if (pt.Inline[a] !== undefined) {
+                return pt.Inline[a].replace('{{handle}}', b);
+            } else {
+                return b;
+            }
+        },
         SplitContent:function(obj){
             obj.cols = obj.cols || 1;
             obj.split = obj.split || null;
@@ -622,11 +629,6 @@ var Pikl = {
             $(target).remove();
         },
         ParseContent:function(obj,target){
-            function replaceHandle(a,b){
-                if(pt.Inline[a] !== undefined) {
-                    return pt.Inline[a].replace('{{handle}}', b);
-                }
-            }
             var accepts = {};
             accepts.select = ['option','value'];
             accepts.button = ['repeat','attributes','class','id','event'];
@@ -639,14 +641,13 @@ var Pikl = {
                     if(typeof _this == 'object' && obj.hasOwnProperty(o)){
                         for(var t in _this){
                             if (typeof _this[t] !== 'object') {
-                                if(pt.Inline[t] === undefined){
+                                if(pt.Inline[t] == undefined){
                                     _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
                                 }else{
-                                    _inlineObj = replaceHandle(t,_this[t]);
+                                    _inlineObj = pa.ReplaceHandle(t,_this[t]);
                                     _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _inlineObj);
                                 }
                             }else {
-                                //_typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
                                 _parent = o;
                                 _child = t;
                                 _this = _this[t];
@@ -657,6 +658,7 @@ var Pikl = {
                                     _outputWrapper = _outputTemplate.split('{@each}')[0].replace('<', '').replace('>', '');
                                 }else{
                                     if(typeof _this === 'object'){
+                                        //console.log('inline not',o,obj[o],t,_this[t])
                                         for(var th in _this){
                                             _formattedString += _this[th][0]+'="'+_this[th][1]+'" ';
                                         }
@@ -671,11 +673,12 @@ var Pikl = {
                                     _typeTemplate = '<'+_outputWrapper+'>'+_formattedString+'</'+_outputWrapper+'>';
                                 }
                             }
-                            for(var m in _this){
+                            /*for(var m in _this){
+                                console.log(m,_this,_this[m],typeof _this[m])
                                 if(typeof _this[m] !== 'object'){
-                                    _typeTemplate = _typeTemplate.replace('{{'+m+'}}',replaceHandle(m,_this[m]));
+                                    _typeTemplate = _typeTemplate.replace('{{'+m+'}}',pa.ReplaceHandle(m,_this[m]));
                                 }
-                            }
+                            }*/
                         }
                     }
                     _typeTemplate !== undefined && _typeTemplate !== '' ? this.DisplayContent(pa.Repeat(_typeTemplate,_repeat),target) : false;
@@ -1137,7 +1140,7 @@ var Pikl = {
                                 $(this).remove();
                                 break;
                             case 'ajax':
-                                _this = this;
+                                var _ajaxTarget = targetItem;
                                 ajaxString = targetContent.replace('{@ajax}', '').replace('{/ajax}', '');
                                 ajaxParams = ajaxString.split(',');
                                 ajaxObject = {};
@@ -1156,8 +1159,8 @@ var Pikl = {
                                             returnedData += ajaxObject.node !== undefined && ajaxObject.node !== '' ? result[r][ajaxObject.node] !== undefined ? result[r][ajaxObject.node] + ' ' : '' : result[r] + ' ';
                                         }
                                     }
-                                    $('<'+tag+'>' + returnedData + '</'+tag+'>').insertBefore($(_this));
-                                    $(_this).remove();
+                                    $('<'+tag+'>' + returnedData + '</'+tag+'>').insertBefore($(_ajaxTarget));
+                                    $(_ajaxTarget).remove();
                                 }).fail(function () {
                                     $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
                                 });
