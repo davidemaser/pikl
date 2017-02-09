@@ -309,6 +309,7 @@ var Pikl = {
             return a;
         },
         TagBuilder:function(tag,multiplier,content){
+            console.log(tag,multiplier,content)
             var s = {};
             s.div = {tag:'<div>',close:true};
             s.br = {tag:'<br />',close:false};
@@ -1025,6 +1026,7 @@ var Pikl = {
                         }
                         break;
                     case 'layout':
+                        console.log(targetContent.split('--'))
                         layoutObjects = targetContent.split('--');
                         objectIndex = 0;
                         for(l in layoutObjects){
@@ -1037,7 +1039,9 @@ var Pikl = {
                                     sliceText.end = layoutObjects[l].indexOf(']');
                                     sliceText.content = nodeContent;
                                     toRemove = layoutObjects[l].slice(sliceText.start,sliceText.end+1);
-                                    cleanObject = layoutObjects[l].replace(toRemove,'');
+                                    cleanObject = layoutObjects[l].replace(toRemove,'').trim();
+                                    console.log(sliceText,toRemove,cleanObject);
+
                                 }else{
                                     sliceText = {};
                                     cleanObject = layoutObjects[l];

@@ -18,7 +18,8 @@ this method gets the data from an external JSON file
 <pikl is="form">{@json}{@src=data/demoForm.json}{/json}</pikl>
 -->
 <pikl is="component">{@header cols=3,split=//}this is// text{/header}</pikl>
-<pikl is="layout">--div[this is the div thing]--p[this is,that is,this is not]*3
+<pikl is="layout">--div[this is the div thing]
+    --p[this is,that is,this is not]*3
     --section[here I would put my content]</pikl>
 <pikl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pikl>
 <pikl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":"close"}]}}{/json}{/modal}</pikl>
