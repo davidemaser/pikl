@@ -234,6 +234,12 @@ var Pikl = {
                 $p.Flash.Build({type:'error',title:'EXECUTION ERROR',message:'A Function was unable to execute due to an unkown error',delay:10000})
             }
         },
+        ImageExists: function (url) {
+                var http = new XMLHttpRequest();
+                http.open('HEAD', url, false);
+                http.send();
+                return http.status != 404;
+        },
         RegisterEvents: function(obj){
             if(typeof obj == 'object'){
                 for(var o in obj){
@@ -288,7 +294,6 @@ var Pikl = {
                     if($.inArray(value,acceptedMods)>-1) {
                         switch (value) {
                             case 'rev':
-                                console.log(str.split('').reverse().join(''));
                                 return str.split('').reverse().join('');
                                 break;
                             case 'trim':
@@ -359,7 +364,6 @@ var Pikl = {
          */
         Store:{},
         Build:function(obj,params,text,target){
-            console.log(obj,params,text,target)
             $p.Components.Store[obj] = {};
             $p.Components.Store[obj]['param'] = params;
             $p.Components.Store[obj]['text'] = text;
@@ -484,13 +488,18 @@ var Pikl = {
                     style : ' style="{{style}}"'
                 }
             };
-            var t,childString='',compactString;
+            var t,childString='',compactString,src;
             if(typeof _params == 'object' && _params !== undefined){
                     for(t in _params){
+                        if(t=='src'){
+                            src = _params[t];
+                        }
                         childString += template.params[t].replace('{{'+t+'}}',_params[t]);
                     }
                 compactString = template.parent.replace('{{params}}',childString);
-                $(compactString).insertBefore(_this.target);
+                if(pa.ImageExists(src) !== false){
+                    $(compactString).insertBefore(_this.target)
+                }
                 _this.target.remove();
             }
         },
