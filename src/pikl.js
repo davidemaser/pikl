@@ -281,6 +281,28 @@ var Pikl = {
                 }
             }
         },
+        StringModifiers:function(str,mods){
+            var acceptedMods = ['rev','trim','whiteout','concat'];
+            if(typeof mods == 'object'){
+                $.each(mods,function(key,value){
+                    if($.inArray(value,acceptedMods)>-1) {
+                        switch (value) {
+                            case 'rev':
+                                console.log(str.split('').reverse().join(''));
+                                return str.split('').reverse().join('');
+                                break;
+                            case 'trim':
+                                return str.trim();
+                                break;
+                            case 'whiteout':
+                                return str.replace(/ /g, '');
+                        }
+                    }
+                });
+            }else{
+
+            }
+        },
         SwapReserved:function(a){
             var res = $p.Config.reserved,r,sub,s;
             for(r in res){
@@ -337,6 +359,7 @@ var Pikl = {
          */
         Store:{},
         Build:function(obj,params,text,target){
+            console.log(obj,params,text,target)
             $p.Components.Store[obj] = {};
             $p.Components.Store[obj]['param'] = params;
             $p.Components.Store[obj]['text'] = text;
@@ -350,6 +373,9 @@ var Pikl = {
                     break;
                 case 'gutter':
                     this.Gutter();
+                    break;
+                case 'image':
+                    this.Image();
                     break;
                 case 'navigation':
                     this.Navigation();
@@ -442,6 +468,28 @@ var Pikl = {
                     }
                 }
                 compactString = template.parent.replace('{{content}}',childString);
+                $(compactString).insertBefore(_this.target);
+                _this.target.remove();
+            }
+        },
+        Image:function(){
+            var _this = $p.Components.Store.image;
+            var _params = _this.param !== undefined ? _this.param : undefined;
+            var template = {
+                parent : '<img {{params}}>',
+                params : {
+                    src : 'src="{{src}}"',
+                    width : ' width="{{width}}"',
+                    height : ' height="{{height}}"',
+                    style : ' style="{{style}}"'
+                }
+            };
+            var t,childString='',compactString;
+            if(typeof _params == 'object' && _params !== undefined){
+                    for(t in _params){
+                        childString += template.params[t].replace('{{'+t+'}}',_params[t]);
+                    }
+                compactString = template.parent.replace('{{params}}',childString);
                 $(compactString).insertBefore(_this.target);
                 _this.target.remove();
             }
@@ -928,7 +976,7 @@ var Pikl = {
                 calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject = {},
                 returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _labels = {}, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
                 templateBlock, templateObjectSubType, templateObjectContent, templateParams, templateBlockOptions, templateOptions = undefined, templateBlockAttributes, templateAttributes = undefined, objectLength, jsonPath,
-                calc, dateUnit, timeUnit, node = node || '[pikl="true"]';
+                calc, dateUnit, timeUnit, node = node || '[pikl="true"]',targetModifiers=[];
             $($p.Config.defaults.tplTag.element).each(function () {
                 keyString = '';
                 targetBinding = $(this).attr('is');
@@ -936,7 +984,12 @@ var Pikl = {
                 targetObject = pi[targetDataBinding];
                 targetContent = $(this).html().replace(/(\r\n|\n|\r)/gm, '').replace(/\}\s+\{/g, '}{');
                 targetItem = $(this);
+                if(targetContent.indexOf('{#mods')>-1){
+                    targetModifiers = targetContent.split('{#mods ')[1].split('}')[0].split(',');
+                    targetContent = targetContent.replace('{#mods '+targetContent.split('{#mods ')[1].split('}')[0]+'}','');
+                }
                 tag = $p.Config.defaults.tplTag.replacement;
+                pa.StringModifiers(targetContent,targetModifiers);
                 switch (targetBinding) {
                     case 'component':
                         componentType = targetContent.split('{@')[1].split(' ')[0];

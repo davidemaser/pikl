@@ -24,12 +24,13 @@ this method gets the data from an external JSON file
 <pikl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pikl>
 <pikl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":"close"}]}}{/json}{/modal}</pikl>
 <pikl is="component">{@gutter type=default,state=visible,button=true}<div class="">this is text</div>{/gutter}</pikl>
-<pikl is="template">{@button params=[repeat=3] attributes=[data-post=nit,data-lake=nop]}text{/button}
+<pikl is="template">{@button params=[repeat=3] attributes=[data-post=nit,data-lake=nop]}{#mods trim,rev}text{/button}
     {@table params=[id=var,style=default,var=grid] rows=[]}{/table}
     {@grid params=[style=default]}{/grid}
     {@form.select params=[style=default,id=hello] options=[label=value,label2=value2]}{/form}</pikl>
 <pikl is="template">{@import model=newTemplate params=[fast=true,slow=false,up=left]}<div></div>{/import}</pikl>
 <pikl is="template">{@import model=button}<div></div>{/import}</pikl>
+<pikl is="component">{@image src=this/image.jpg,width=255,height=185,style=display:block;opacity:1.5}{/image}</pikl>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="src/pikl.js"></script>
     <!--<script src="dist/js/pikl.min.js"></script>-->
