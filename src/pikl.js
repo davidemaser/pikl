@@ -30,6 +30,11 @@ var Pikl = {
             },
             domRoot:'body'
         },
+        log:{
+            enabled:true,
+            events:[],
+            store:'object'
+        },
         DateConditions:['day','month','year','hours','minutes','seconds'],
         Operators:['=','!=','>','<','<=','>='],
         plugins: {
@@ -355,6 +360,9 @@ var Pikl = {
                 }
             }
             return tagOutput;
+        },
+        TimeStamp:function(){
+            return Math.floor(Date.now() / 1000);
         }
     },
     Components:{
@@ -1070,7 +1078,6 @@ var Pikl = {
                                     templateObject[templateObjectType][templateObjectSubType] = {};
                                 }
                                 for (p in templateParams) {
-                                    console.log(templateObjectType,templateOptions,templateAttributes);
                                     _this = templateParams[p];
                                     _this = _this.split('=');
                                     if (typeof templateObject[templateObjectType][templateObjectSubType] == 'object') {
@@ -1161,6 +1168,7 @@ var Pikl = {
                     case 'data':
                         targetNode = $(this).html().replace(/}/g, '').replace(/{/g, '').replace('#comma', '');
                         appendComma = $(this).html().indexOf('{#comma}') > -1;
+                        console.log(targetObject,targetNode);
                         if (typeof targetObject == 'object') {
                             for (t in targetObject) {
                                 keyString += targetObject[t][targetNode] !== undefined ? targetObject[t][targetNode] : ' ';
@@ -1211,6 +1219,7 @@ var Pikl = {
                                         }
                                     }
                                 }
+                                log.Write('if',{event:'Conditional',response:conditionArgument,completed:true});
                                 break;
                             case 'calc':
                                 try {
@@ -1230,6 +1239,7 @@ var Pikl = {
                                     }
                                     calcMath = $.inArray(calcMath,mathOperators) ? calcMath : null ;
                                     $('<' + tag + '>' + pa.Calculate(calcString, calcMath || null) + '</' + tag + '>').insertBefore($(this));
+                                    log.Write('calc',{event:'Calculation',response:calcObject,completed:true});
                                 }catch(e){
                                     /*
                                      assuming tat the math operator will be the main cause of errors
@@ -1239,7 +1249,7 @@ var Pikl = {
                                     try {
                                         $('<' + tag + '>' + pa.Calculate(calcString) + '</' + tag + '>').insertBefore($(this));
                                     }catch(e){
-                                        console.log('Unable to execute the mathematical operation')
+                                        log.Write('calc',{event:'Calculation',response:calcObject,completed:false});
                                     }
                                 }
                                 $(this).remove();
@@ -1270,7 +1280,9 @@ var Pikl = {
                                     }
                                     $('<' + tag + '>' + returnedData + '</' + tag + '>').insertBefore($(_ajaxTarget));
                                     $(_ajaxTarget).remove();
+                                    log.Write('ajax',{event:'AJAX',response:returnedData || null,completed:true});
                                 }).fail(function () {
+                                    log.Write('ajax',{event:'AJAX',response:returnedData || null,completed:false});
                                     $p.Flash.Build({
                                         type: 'error',
                                         title: 'JSON Error',
@@ -1283,6 +1295,40 @@ var Pikl = {
                     }
                 }
             });
+        }
+    },
+    Log:{
+        Store:{},
+        Template:'<div>{@each}<div>{{key}} - {{value}}</div>{/each}</div>',
+        Display:function(mode){
+            switch (mode){
+                case 'console':
+                    console.log(log.Store);
+                    break;
+                case 'app':
+                    break;
+            }
+        },
+        Write:function(origin,obj){
+            /*
+            obj format is the following
+            {event:'',response:'',completed:''}
+             */
+            try {
+                if (typeof obj === 'object' && $p.Config.log.enabled == true) {
+                    var _stamp = pa.TimeStamp();
+                    log.Store[origin] = {};
+                    for (var o in obj) {
+                        log.Store[origin][o] = obj[o];
+                    }
+                    log.Store[origin]['timeStamp'] = _stamp;
+                }
+            }catch(e){
+
+            }
+        },
+        Flush:function(){
+
         }
     },
     Validators: {
@@ -1320,4 +1366,5 @@ var pij = Pikl.Init.Json();
 var pa = Pikl.Assistants;
 var pf = Pikl.Form;
 var pt = Pikl.Templates;
+var log = Pikl.Log;
 var pan = Pikl.Animations;
