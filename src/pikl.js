@@ -53,6 +53,9 @@ var Pikl = {
         targets:['div','span','p']
     },
     Index:{},
+    App:{
+        Data:{}
+    },
     Animations: {
         /*
         Prebuilt animations that can be called directly or
@@ -831,10 +834,12 @@ var Pikl = {
          */
         Template:'<section pikl-widget="flash" pikl-flash="{{type}}" {{style}}><div class="pikl __flash_{{type}} title">{{title}}</div><div class="pikl __flash_{{type}} body">{{body}}<div></div></div></section>',
         Build:function(obj) {
-            var type,title,message,delay,style,codeBlock;
-            if($('section[pikl-widget="flash"]').length !== 0){
+            var override = typeof obj == 'object' && obj.override !== undefined ? obj.override : false;
+            var target = 'section[pikl-widget="flash"]',type,title,message,delay,style,codeBlock;
+            if($(target).length !== 0 && override !== true){
                 console.log('Flash object is already open');
             }else{
+                $(target).remove();
                 if (obj !== undefined && typeof obj == 'object') {
                     type = obj.type;
                     title = obj.title;
@@ -1004,7 +1009,7 @@ var Pikl = {
              Each object will be treated by it's parent object
              function
              */
-            var appendComma = false, targetObject = {}, targetItem, targetBinding, targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText = {}, objectIndex, calcString, mathOperators,
+            var appendComma = false, targetObject = {}, targetItem, targetBinding, targetDataBinding, targetName, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText = {}, objectIndex, calcString, mathOperators,
                 calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject = {},
                 returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
                 templateBlock, templateObjectSubType, templateObjectContent, templateParams, objectLength, jsonPath,
@@ -1013,6 +1018,7 @@ var Pikl = {
                 keyString = '';
                 targetBinding = $(this).attr('is');
                 targetDataBinding = $(this).attr('bind');
+                targetName = $(this).attr('name');
                 targetObject = pi[targetDataBinding];
                 targetContent = $(this).html().replace(/(\r\n|\n|\r)/gm, '').replace(/\}\s+\{/g, '}{');
                 targetItem = $(this);
@@ -1175,7 +1181,6 @@ var Pikl = {
                     case 'data':
                         targetNode = $(this).html().replace(/}/g, '').replace(/{/g, '').replace('#comma', '');
                         appendComma = $(this).html().indexOf('{#comma}') > -1;
-                        console.log(targetObject,targetNode);
                         if (typeof targetObject == 'object') {
                             for (t in targetObject) {
                                 keyString += targetObject[t][targetNode] !== undefined ? targetObject[t][targetNode] : ' ';
@@ -1187,6 +1192,40 @@ var Pikl = {
                         keyString = keyString.trim();
                         keyString = keyString.slice(-1) == ',' ? keyString.substring(0, keyString.length - 1) : keyString;
                         $('<' + tag + '>' + keyString + '</' + tag + '>').insertBefore($(this));
+                        $(this).remove();
+                        break;
+                    case 'parser':
+                        /*
+                        parses the string content of a pikl object and converts it into a json object.
+                        JSON object is saved to the Pikl.App.Data object and can be accessed by other
+                        functions.
+                         */
+                        function parseContent(obj){
+                            try {
+                                return JSON.parse(obj);
+                            }catch(e){
+                                flash.Build({
+                                    type: 'error',
+                                    title: 'JSON Error',
+                                    message: 'Unable to convert the string to a JSON object. Verify that the string is valid JSON. Check console for the error message.',
+                                    delay: 5000,
+                                    override:true
+                                });
+                                console.log(e);
+                                return false;
+                            }
+                        }
+                        var _jsonOBJ = parseContent(targetContent);
+                        if(_jsonOBJ !== false) {
+                            var _jsonNode = targetDataBinding !== undefined && targetDataBinding !== null ? _jsonOBJ[targetDataBinding] : _jsonOBJ;
+                            pad[targetName] = targetName !== undefined && targetName !== '' ?  _jsonNode  : false;
+                            if (typeof _jsonNode == 'object') {
+                                for (var j in _jsonNode) {
+                                    //console.log(_jsonNode[j]);
+                                }
+                            }
+                        }
+                        console.log(pad);
                         $(this).remove();
                         break;
                 }
@@ -1376,3 +1415,4 @@ var pt = Pikl.Templates;
 var log = Pikl.Log;
 var pan = Pikl.Animations;
 var flash = Pikl.Flash;
+var pad = Pikl.App.Data;

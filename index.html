@@ -31,6 +31,7 @@ this method gets the data from an external JSON file
 <pikl is="template">{@import model=newTemplate params=[fast=true,slow=false,up=left]}<div></div>{/import}</pikl>
 <pikl is="template">{@import model=button}<div></div>{/import}</pikl>
 <pikl is="component">{@image src=this/image.jpg,width=255,height=185,style=display:block;opacity:1.5}{/image}</pikl>
+<pikl is="parser" bind="line" name="lines">{"line":[{"title":"this","content":"something","other":""},{"title":"another EDGE","content":"something ELSE","other":"that this"}]}</pikl>
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="src/pikl.js"></script>
     <!--<script src="dist/js/pikl.min.js"></script>-->
