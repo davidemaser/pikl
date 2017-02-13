@@ -848,6 +848,14 @@ var Pikl = {
                     });
                 }
             }
+            $($p.Config.defaults.domRoot).on('click','section[pikl-widget="flash"]',function(){
+                pan.SlideIntoPosition({
+                    object: 'section[pikl-widget="flash"]',
+                    direction: 'down',
+                    speed: 250,
+                    remove: true
+                });
+            })
         }
     },
     Form:{
@@ -983,8 +991,8 @@ var Pikl = {
              */
             var appendComma = false, targetObject = {}, targetItem, targetBinding, targetDataBinding, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText = {}, objectIndex, calcString, mathOperators,
                 calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject = {},
-                returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _labels = {}, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
-                templateBlock, templateObjectSubType, templateObjectContent, templateParams, templateBlockOptions, templateOptions = undefined, templateBlockAttributes, templateAttributes = undefined, objectLength, jsonPath,
+                returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
+                templateBlock, templateObjectSubType, templateObjectContent, templateParams, objectLength, jsonPath,
                 calc, dateUnit, timeUnit, node = node || '[pikl="true"]',targetModifiers=[];
             $($p.Config.defaults.tplTag.element).each(function () {
                 keyString = '';
@@ -1023,6 +1031,7 @@ var Pikl = {
                         break;
                     case 'template':
                     function collectOptions(options) {
+                        var _labels = {};
                         if (options !== undefined) {
                             for (o in options) {
                                 _options = options[o];
@@ -1034,13 +1043,13 @@ var Pikl = {
                             return _labels;
                         }
                     }
-
                         template = targetContent;
                         if (targetContent.indexOf('@import') > -1) {
                             $p.Templates.Import(targetContent, targetItem);
                         } else {
                             var eachObject = template.split('}{@');
                             for (e in eachObject) {
+                                var templateBlockOptions,templateOptions=undefined,templateBlockAttributes,templateAttributes=undefined;
                                 eachObject[e] = eachObject[e].replace('{@', '');
                                 templateObjectType = eachObject[e].split(' ')[0].split('.')[0];
                                 templateObjectSubType = eachObject[e].split(' ')[0].split('.')[1];
@@ -1048,6 +1057,7 @@ var Pikl = {
                                 eachObject[e] = eachObject[e].replace('{/' + templateObjectType + '}', '').replace('{/' + templateObjectType, '').replace('}', '').replace(templateObjectType + ' ', '');
                                 templateBlock = eachObject[e].split('params=[')[1].split(']')[0];
                                 templateParams = templateBlock.split(',');
+                                templateObject[templateObjectType] = {};
                                 if (eachObject[e].indexOf('options=[') > -1) {
                                     templateBlockOptions = eachObject[e].split('options=[')[1].split(']')[0];
                                     templateOptions = templateBlockOptions.split(',');
@@ -1056,11 +1066,11 @@ var Pikl = {
                                     templateBlockAttributes = eachObject[e].split('attributes=[')[1].split(']')[0];
                                     templateAttributes = templateBlockAttributes.split(',');
                                 }
-                                templateObject[templateObjectType] = {};
                                 if (templateObjectSubType !== undefined && templateObjectSubType !== '') {
                                     templateObject[templateObjectType][templateObjectSubType] = {};
                                 }
                                 for (p in templateParams) {
+                                    console.log(templateObjectType,templateOptions,templateAttributes);
                                     _this = templateParams[p];
                                     _this = _this.split('=');
                                     if (typeof templateObject[templateObjectType][templateObjectSubType] == 'object') {
