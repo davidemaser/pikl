@@ -1,18 +1,21 @@
 /**
  * Created by David Maser on 09/01/17.
 
- ##############
- # Aliases
- #############
+ #################
+ #### Aliases ####
+ #################
 
  Use the following Aliases to access specific functions
 
- $p or p =  Pikl
- pi = Pikl.Index
- pij = Pikl.Init.Json()
- pa = Pikl.Assistants
- pf = Pikl.Form
- pan = Pikl.Animations
+ $p = p = Pikl;
+ pi = Pikl.Index;
+ pij = Pikl.Init.Json();
+ pa = Pikl.Assistants;
+ pf = Pikl.Form;
+ pt = Pikl.Templates;
+ log = Pikl.Log;
+ pan = Pikl.Animations;
+ flash = Pikl.Flash;
 
  */
 var Pikl = {
