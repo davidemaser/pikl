@@ -236,7 +236,7 @@ var Pikl = {
                 }
                 return context[func].apply(context, args);
             }catch(e){
-                $p.Flash.Build({type:'error',title:'EXECUTION ERROR',message:'A Function was unable to execute due to an unkown error',delay:10000})
+                flash.Build({type:'error',title:'EXECUTION ERROR',message:'A Function was unable to execute due to an unkown error',delay:10000})
             }
         },
         ImageExists: function (url) {
@@ -396,6 +396,7 @@ var Pikl = {
                     this.Modal.Create(JSON.parse(text));
                     break;
             }
+            log.Write('build',{event:'components',response:obj,completed:true});
         },
         Footer:function(){
             var _this = $p.Components.Store.footer;
@@ -462,6 +463,8 @@ var Pikl = {
             $($p.Config.defaults.domRoot).on('click','.pikl.__gutter_button',function(){
                 $p.Assistants.ExecuteFunctionByName('pan.GutterStateMotion', window);
             });
+            log.Write('gutter',{event:'components',response:_this,completed:true});
+
         },
         Header:function(){
             var _this = $p.Components.Store.header;
@@ -483,6 +486,7 @@ var Pikl = {
                 $(compactString).insertBefore(_this.target);
                 _this.target.remove();
             }
+            log.Write('header',{event:'components',response:_this,completed:true});
         },
         Image:function(){
             var _this = $p.Components.Store.image;
@@ -627,7 +631,7 @@ var Pikl = {
                     }
                     pan.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
                 }else {
-                    $p.Flash.Build();
+                    flash.Build();
                 }
             },
             Destroy:function(item){
@@ -693,7 +697,7 @@ var Pikl = {
                 }
                 console.log(objArray);
             }else{
-                $p.Flash.Build({type:'error',title:'Type Mismatch',message:'Function was expecting an object but did not receive one',delay:10000});
+                flash.Build({type:'error',title:'Type Mismatch',message:'Function was expecting an object but did not receive one',delay:10000});
             }
             $(target).remove();
         },
@@ -812,7 +816,7 @@ var Pikl = {
                 //new template objects have been imported into the Templates.Collection object. Call them by name
                 console.log('Model built having name ' + templateModel, pt.Collection[templateModel]);
             }else{
-                $p.Flash.Build({type:'warning',title:'Warning',message:'The template named "'+templateModel+'" already exists in the collection. Please chose another one',delay:10000});
+                flash.Build({type:'warning',title:'Warning',message:'The template named "'+templateModel+'" already exists in the collection. Please chose another one',delay:10000});
             }
             $(target).remove();
         }
@@ -826,7 +830,7 @@ var Pikl = {
         Build:function(obj) {
             var type,title,message,delay,style,codeBlock;
             if($('section[pikl-widget="flash"]').length !== 0){
-                console.log('Flash object is already open')
+                console.log('Flash object is already open');
             }else{
                 if (obj !== undefined && typeof obj == 'object') {
                     type = obj.type;
@@ -834,7 +838,7 @@ var Pikl = {
                     message = obj.message;
                     delay = parseInt(obj.delay) || 2500;
                     style = 'style="bottom:-160px;"';
-                    codeBlock = $p.Flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message).replace('{{style}}', style);
+                    codeBlock = flash.Template.replace(/{{type}}/g, type).replace('{{title}}', title).replace('{{body}}', message).replace('{{style}}', style);
                     $($p.Config.defaults.domRoot).prepend(codeBlock);
                     $.when(
                         pan.SlideIntoPosition({
@@ -974,7 +978,7 @@ var Pikl = {
                         pi[key] = value;
                     })
                 },error:function(){
-                    $p.Flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
+                    flash.Build({type:'error',title:'JSON Error',message:'Unable to load JSON data. Verify that the json file exists',delay:10000})
                 },complete:function(){
                     /*
                     ondce all indexes have been stored in the
@@ -1151,7 +1155,7 @@ var Pikl = {
                                     pa.Ajax(jsonPath).done(function (result) {
                                         pf.Build(result, targetItem);
                                     }).fail(function () {
-                                        $p.Flash.Build({
+                                        flash.Build({
                                             type: 'error',
                                             title: 'JSON Error',
                                             message: 'Unable to load JSON data. Verify that the json file exists',
@@ -1283,7 +1287,7 @@ var Pikl = {
                                     log.Write('ajax',{event:'AJAX',response:returnedData || null,completed:true});
                                 }).fail(function () {
                                     log.Write('ajax',{event:'AJAX',response:returnedData || null,completed:false});
-                                    $p.Flash.Build({
+                                    flash.Build({
                                         type: 'error',
                                         title: 'JSON Error',
                                         message: 'Unable to load JSON data. Verify that the json file exists',
@@ -1336,7 +1340,7 @@ var Pikl = {
             try {
                 return JSON.parse(code);
             } catch (e) {
-                $p.Flash.Build({
+                flash.Build({
                     type: 'error',
                     title: 'JSON Parse Error',
                     message: 'Unable to parse JSON ' + e,
@@ -1368,3 +1372,4 @@ var pf = Pikl.Form;
 var pt = Pikl.Templates;
 var log = Pikl.Log;
 var pan = Pikl.Animations;
+var flash = Pikl.Flash;
