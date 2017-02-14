@@ -549,7 +549,6 @@ var Pikl = {
                     var _columnString = '';
                     if(typeof content[c] == 'object'){
                         column = content[c].columns;
-
                         for(d in column){
                             _columnLabel = column[d].item;
                             var _childString = '';
