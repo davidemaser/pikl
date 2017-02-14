@@ -529,42 +529,43 @@ var Pikl = {
                 content = content['nav'];
             }catch(e){
                 flash.Build({type:'format error',title:'JSON Formatting Error',message:'Unable to parse the string as JSON. Please validate the JSON string',delay:10000});
-
             }
             var template = {
                 parent : '<nav>{{content}}</nav>',
                 item:'<div class="nav_item"><span>{{label}}</span><div class="nav_child">{{content}}</div></div>',
                 columns : {
-                    simple : '<div class="nav_column"><span>{{label}}</span>{{content}}</div>',
-                    child:'<div class="nav_column_chld">{{content}}</div>'
+                    simple : '<div class="nav_column"><span>{{label}}</span><div class="nav_column_child">{{content}}</div></div>',
+                    child:'<div class="nav_column_child_item">{{content}}</div>'
                 }
             };
-            var childString = '',column,child,c,d,e,compactString,_itemLabel,_childLabel,_columnLabel;
+            function appendToObject(str,level){
+
+            }
+            var column,child,c,d,e,_itemLabel,_childLabel,_columnLabel;
             var _objectString = '';
             if(typeof content == 'object'){
-                var _columnString = '';
                 for(c in content){
                     _itemLabel = content[c].item;
+                    var _columnString = '';
                     if(typeof content[c] == 'object'){
                         column = content[c].columns;
+
                         for(d in column){
-                            var _childString = '';
                             _columnLabel = column[d].item;
+                            var _childString = '';
                             if(typeof column[d] == 'object'){
                                 child = column[d].children;
                                 _childLabel = column[d].item;
                                 for(e in child){
                                     _childString += template.columns.child.replace('{{content}}',child[e].child);
                                 }
-                                _columnString += template.columns.simple.replace('{{label}}',_columnLabel).replace('{{content}}',_childString);
                             }
+                            _columnString += template.columns.simple.replace('{{label}}',_columnLabel).replace('{{content}}',_childString);
                         }
-                        _objectString += template.item.replace('{{label}}',_itemLabel).replace('{{content}}',_columnString);
                     }
+                    _objectString += template.item.replace('{{label}}',_itemLabel).replace('{{content}}',_columnString);
                 }
                 _objectString = template.parent.replace('{{content}}',_objectString);
-                console.log(_objectString);
-                //_objectString += template.item.replace('{{content}}',_itemLabel+_columnString);
             }
             $(_objectString).insertBefore(_this.target);
             _this.target.remove();
