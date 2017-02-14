@@ -395,7 +395,7 @@ var Pikl = {
                 case 'image':
                     this.Image();
                     break;
-                case 'navigation':
+                case 'nav':
                     this.Navigation();
                     break;
                 case 'modal':
@@ -522,27 +522,52 @@ var Pikl = {
             }
         },
         Navigation:function(){
-            var _this = $p.Components.Store.navigation;
-            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : '';
-            var template = {
-                parent : '<nav>{{content}}</nav>',
-                columns : {
-                    multiple : '<div class="nav_column">{{content}}</div>'
-                }
-            };
-            var childString = '',c,compactString;
-            if(typeof content == 'object'){
-                if(Array.isArray(content)){
-                    for(c in content){
-                        childString += template.columns.multiple.replace('{{content}}',content[c]);
-                    }
-                }
-                compactString = template.parent.replace('{{content}}',childString);
-                console.log(compactString);
-            }
-            function buildNavHierarchy(obj){
+            var _this = $p.Components.Store.nav;
+            var content = _this.param.cols !== undefined && _this.param.split !== undefined ? $p.Assistants.SplitContent({cols:_this.param.cols,split:_this.param.split,text:_this.text}) : _this.text;
+            try{
+                content = JSON.parse(content);
+                content = content['nav'];
+            }catch(e){
+                flash.Build({type:'format error',title:'JSON Formatting Error',message:'Unable to parse the string as JSON. Please validate the JSON string',delay:10000});
 
             }
+            var template = {
+                parent : '<nav>{{content}}</nav>',
+                item:'<div class="nav_item"><span>{{label}}</span><div class="nav_child">{{content}}</div></div>',
+                columns : {
+                    simple : '<div class="nav_column"><span>{{label}}</span>{{content}}</div>',
+                    child:'<div class="nav_column_chld">{{content}}</div>'
+                }
+            };
+            var childString = '',column,child,c,d,e,compactString,_itemLabel,_childLabel,_columnLabel;
+            var _objectString = '';
+            if(typeof content == 'object'){
+                var _columnString = '';
+                for(c in content){
+                    _itemLabel = content[c].item;
+                    if(typeof content[c] == 'object'){
+                        column = content[c].columns;
+                        for(d in column){
+                            var _childString = '';
+                            _columnLabel = column[d].item;
+                            if(typeof column[d] == 'object'){
+                                child = column[d].children;
+                                _childLabel = column[d].item;
+                                for(e in child){
+                                    _childString += template.columns.child.replace('{{content}}',child[e].child);
+                                }
+                                _columnString += template.columns.simple.replace('{{label}}',_columnLabel).replace('{{content}}',_childString);
+                            }
+                        }
+                        _objectString += template.item.replace('{{label}}',_itemLabel).replace('{{content}}',_columnString);
+                    }
+                }
+                _objectString = template.parent.replace('{{content}}',_objectString);
+                console.log(_objectString);
+                //_objectString += template.item.replace('{{content}}',_itemLabel+_columnString);
+            }
+            $(_objectString).insertBefore(_this.target);
+            _this.target.remove();
         },
         Modal:{
             /*
@@ -580,9 +605,9 @@ var Pikl = {
                  */
                 if(obj !== undefined && typeof obj == 'object') {
                     var modalName = obj.name;
-                    var buttonString = '';
-                    var modalString = this.Structure.default.replace('{{name}}',modalName);
-                    var o,subObj,s,buttons,b;
+                    var _buttonString = '';
+                    var _modalString = this.Structure.default.replace('{{name}}',modalName);
+                    var o,subObj,s,_buttons,b;
                     if (_this.Store[modalName] == undefined) {
                         _this.Store[modalName] = {};
                         /*
@@ -595,20 +620,20 @@ var Pikl = {
                                 subObj = obj[o];
                                 for(s in subObj){
                                     if(typeof subObj[s] !== 'object'){
-                                        modalString = modalString.replace('{{'+s+'}}',subObj[s]);
+                                        _modalString = _modalString.replace('{{'+s+'}}',subObj[s]);
                                     }else{
                                         // it's an object so it's going to be the buttons
-                                        buttons = subObj[s];
-                                        for(b in buttons){
-                                            buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
+                                        _buttons = subObj[s];
+                                        for(b in _buttons){
+                                            _buttonString += '<button pikl-type="'+_buttons[b].type+'">'+_buttons[b].label+'</button>';
                                         }
                                     }
                                 }
-                                modalString = modalString.replace('{{buttons}}',buttonString)
+                                _modalString = _modalString.replace('{{buttons}}',_buttonString)
                             }else{
                             }
                         }
-                        $(modalString).insertBefore(_target);
+                        $(_modalString).insertBefore(_target);
                         _target.remove();
                     } else {
                         //build modal from store data
@@ -619,20 +644,20 @@ var Pikl = {
                                 subObj = obj[o];
                                 for(s in subObj){
                                     if(typeof subObj[s] !== 'object'){
-                                        modalString = modalString.replace('{{'+s+'}}',subObj[s]);
+                                        _modalString = _modalString.replace('{{'+s+'}}',subObj[s]);
                                     }else{
                                         // it's an object so it's going to be the buttons
-                                        buttons = subObj[s];
-                                        for(b in buttons){
-                                            buttonString += '<button pikl-type="'+buttons[b].type+'">'+buttons[b].label+'</button>';
+                                        _buttons = subObj[s];
+                                        for(b in _buttons){
+                                            _buttonString += '<button pikl-type="'+_buttons[b].type+'">'+_buttons[b].label+'</button>';
                                         }
                                     }
                                 }
-                                modalString = modalString.replace('{{buttons}}',buttonString)
+                                _modalString = _modalString.replace('{{buttons}}',_buttonString)
                             }else{
                             }
                         }
-                        $(modalString).insertBefore(_target);
+                        $(_modalString).insertBefore(_target);
                         _target.remove();
                     }
                     pan.FadeOutOnClick({handler:'click',item:'button[pikl-type="refuse"]',target:'[pikl-component*="modal"]',speed:500})
