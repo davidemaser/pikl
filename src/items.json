@@ -1,0 +1,70 @@
+{
+  "nav": [
+    {
+      "item": "First Parent Item",
+      "columns": [
+        {
+          "item": "First column",
+          "children": [
+            {
+              "child": "FFA"
+            },
+            {
+              "child": "FFB"
+            },
+            {
+              "child": "FFC"
+            }
+          ]
+        },
+        {
+          "item": "Second column",
+          "children": [
+            {
+              "child": "FSA"
+            },
+            {
+              "child": "FSB"
+            },
+            {
+              "child": "FSC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item": "Second parent Item",
+      "columns": [
+        {
+          "item": "Secondary first column",
+          "children": [
+            {
+              "child": "SFA"
+            },
+            {
+              "child": "SFB"
+            },
+            {
+              "child": "SFC"
+            }
+          ]
+        },
+        {
+          "item": "Secondary second column",
+          "children": [
+            {
+              "child": "SSA"
+            },
+            {
+              "child": "SSB"
+            },
+            {
+              "child": "SSC"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

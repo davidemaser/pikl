@@ -1,0 +1,38 @@
+nav{
+  position: absolute;
+  .nav_item {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    padding: 10px;
+    &:not(:hover) .nav_child {
+      display: none;
+    }
+    &:hover .nav_child {
+      display: block;
+    }
+  }
+  .nav_column {
+    display: inline-block;
+    margin: 0 10px;
+    &:not(:hover) .nav_column_child {
+      display: none;
+    }
+    &:hover .nav_column_child {
+      display: block;
+    }
+  }
+  .nav_child {
+    position: absolute;
+  }
+  .nav_column_child {
+    position: absolute;
+    right: 0;
+    top: 0;
+    vertical-align: top;
+  }
+  .nav_column_child_item {
+    display: block;
+    margin: 0 5px;
+  }
+}
