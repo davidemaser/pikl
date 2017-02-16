@@ -141,6 +141,21 @@ var Pikl = {
                 method:'GET'
             });
         },
+        AjaxParams:function(ajaxParams){
+            /*
+            returns the ajax parameters as an object. Can be passed to
+            $p.Assistants.Ajax
+             */
+            var param,p,value,ajaxObject = {};
+            for (p in ajaxParams) {
+                param = ajaxParams[p].split('=')[0].replace('}', '').replace('{', '').replace('@', '');
+                value = ajaxParams[p].split('=')[1].replace('}', '').replace('{', '').replace('@', '');
+                if ($.inArray(param, $p.Config.Ajax.params) > -1) {
+                    ajaxObject[param] = value;
+                }
+            }
+            return ajaxObject;
+        },
         BuildLink:function(params,text){
             var linkTemplate ='<a href="{{url}}" target="{{target}}">{{content}}</a>',filteredParams = {};
             filteredParams.url = params.indexOf('url=') > -1 ? params.split('url="')[1].split('"')[0] : null;
@@ -538,9 +553,6 @@ var Pikl = {
                     child:'<div class="nav_column_child_item">{{content}}</div>'
                 }
             };
-            function appendToObject(str,level){
-
-            }
             var column,child,c,d,e,_itemLabel,_childLabel,_columnLabel;
             var _objectString = '';
             if(typeof content == 'object'){
@@ -1035,7 +1047,7 @@ var Pikl = {
              function
              */
             var appendComma = false, targetObject = {}, targetItem, targetBinding, targetDataBinding, targetName, targetNode, targetContent, keyString, layoutObjects, nodeContent, sliceText = {}, objectIndex, calcString, mathOperators,
-                calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams, ajaxObject = {},
+                calcObject = {}, calcMath, cleanObject, conditional, conditionType, conditionArgument, conditionCase = {}, dateString, toRemove, passContent, _this, ajaxString, ajaxParams,
                 returnedData, param, value, template, templateObject = {}, tag, c, d, e, l, t, o, p, r, _options, componentType, componentParams, componentParamsObj = {}, componentText, paramArray, templateObjectType,
                 templateBlock, templateObjectSubType, templateObjectContent, templateParams, objectLength, jsonPath,
                 calc, dateUnit, timeUnit, node = node || '[pikl="true"]',targetModifiers=[];
@@ -1063,7 +1075,15 @@ var Pikl = {
                         }
                         componentParamsObj = {};
                         if (targetContent.indexOf('{@json}') > -1) {
-                            componentText = targetContent.split('{@json}')[1].split('{/json}')[0];
+                            if(targetContent.indexOf('{@ajax')>-1){
+                                var usingAjax = true;
+                                var ajaxTargetObject = $(this);
+                                ajaxString = targetContent.split('{@json}')[1].split('{/json}')[0].replace('{@ajax}', '').replace('{/ajax}', '');
+                                ajaxParams = ajaxString.split(',');
+                                ajaxObject = pa.AjaxParams(ajaxParams);
+                            }else{
+                                componentText = targetContent.split('{@json}')[1].split('{/json}')[0];
+                            }
                         } else {
                             componentText = targetContent.split('}')[1].split('{')[0];
                         }
@@ -1073,7 +1093,14 @@ var Pikl = {
                                 componentParamsObj[paramArray[0]] = paramArray[1];
                             }
                         }
-                        $p.Components.Build(componentType, componentParamsObj, componentText, $(this));
+                        if(usingAjax == true){
+                            pa.Ajax(ajaxObject).done(function (result) {
+                                componentText = JSON.stringify(result);
+                                $p.Components.Build(componentType, componentParamsObj, componentText, ajaxTargetObject);
+                            });
+                        }else{
+                            $p.Components.Build(componentType, componentParamsObj, componentText, $(this));
+                        }
                         break;
                     case 'template':
                     function collectOptions(options) {
@@ -1335,13 +1362,7 @@ var Pikl = {
                                 ajaxString = targetContent.replace('{@ajax}', '').replace('{/ajax}', '');
                                 ajaxParams = ajaxString.split(',');
                                 returnedData = '';
-                                for (p in ajaxParams) {
-                                    param = ajaxParams[p].split('=')[0].replace('}', '').replace('{', '').replace('@', '');
-                                    value = ajaxParams[p].split('=')[1].replace('}', '').replace('{', '').replace('@', '');
-                                    if ($.inArray(param, $p.Config.Ajax.params) > -1) {
-                                        ajaxObject[param] = value;
-                                    }
-                                }
+                                var ajaxObject = pa.AjaxParams(ajaxParams);
                                 pa.Ajax(ajaxObject).done(function (result) {
                                     result = ajaxObject.index !== undefined && ajaxObject.index !== '' ? result[ajaxObject.index] : result;
                                     if (ajaxObject.repeat == true || ajaxObject.repeat === 'true') {
