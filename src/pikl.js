@@ -1,5 +1,7 @@
 /**
- * Created by David Maser on 09/01/17.
+ * Pikl Project Created and maintained by David Maser [davidemaser@gmail.com].
+ * Use and sharing of this code is subject to rules and regulations outlined
+ * in the GPL 3.0 license.
 
  #################
  #### Aliases ####
