@@ -453,7 +453,6 @@ var Pikl = {
                 var compactString = template.parent.replace('{{content}}',childString);
                 $(compactString).insertBefore(_this.target);
                 _this.target.remove();
-                console.log(compactString);
             }
         },
         Gutter:function(){
@@ -477,7 +476,6 @@ var Pikl = {
                 compactString = template.parent.replace('{{content}}',template.button+childString);
                 $($p.Config.defaults.domRoot).prepend(compactString).find('section[role="content"]').attr('pikl-has-gutter','true').attr('pikl-gutter-state',defaultState);
                 _this.target.remove();
-                console.log(compactString);
             }else{
                 attrString = '';
                 if(_this.param !== undefined && typeof _this.param == 'object'){
@@ -497,7 +495,6 @@ var Pikl = {
                 $p.Assistants.ExecuteFunctionByName('pan.GutterStateMotion', window);
             });
             log.Write('gutter',{event:'components',response:_this,completed:true});
-
         },
         Header:function(){
             var _this = $p.Components.Store.header;
