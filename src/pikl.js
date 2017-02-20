@@ -147,6 +147,7 @@ var Pikl = {
             /*
             returns the ajax parameters as an object. Can be passed to
             $p.Assistants.Ajax
+             @return {object}
              */
             var param,p,value,ajaxObject = {};
             for (p in ajaxParams) {
@@ -159,6 +160,9 @@ var Pikl = {
             return ajaxObject;
         },
         BuildLink:function(params,text){
+            /*
+            @return {string}
+             */
             var linkTemplate ='<a href="{{url}}" target="{{target}}">{{content}}</a>',filteredParams = {};
             filteredParams.url = params.indexOf('url=') > -1 ? params.split('url="')[1].split('"')[0] : null;
             filteredParams.target = params.indexOf('target=') > -1 ? params.split('target="')[1].split('"')[0] : null;
@@ -211,6 +215,9 @@ var Pikl = {
             return str;
         },
         Comparison: function (a, b, c) {
+            /*
+             @return {boolean}
+             */
             switch (b) {
                 case '=':
                     return a == c;
@@ -263,6 +270,9 @@ var Pikl = {
             }
         },
         ImageExists: function (url) {
+            /*
+             @return {boolean}
+             */
                 var http = new XMLHttpRequest();
                 http.open('HEAD', url, false);
                 http.send();
