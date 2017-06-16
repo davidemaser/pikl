@@ -5,7 +5,8 @@ import {Config} from './Config';
 import {Templates} from './Templates';  
 import {Flash} from './Flash';
 import {Animations} from './Animations';
-export const Assistants = {
+
+export let Assistants = {
   /*
    Built in assistant function that can be called directly or
    from within pikl template objects
@@ -25,7 +26,7 @@ export const Assistants = {
   AjaxParams: function (ajaxParams) {
     /*
      returns the ajax parameters as an object. Can be passed to
-     $p.Assistants.Ajax
+     Assistants.Ajax
      @return {object}
      */
     let param, p, value, ajaxObject = {};
@@ -137,16 +138,37 @@ export const Assistants = {
     }
   },
   ExecuteFunctionByName: function (functionName, context, args) {
-    try {
-      let args = [].slice.call(arguments).splice(2);
-      let namespaces = functionName.split(".");
-      let func = namespaces.pop();
-      for (let i = 0; i < namespaces.length; i++) {
-        context = context[namespaces[i]];
+    if(functionName === 'GutterStateMotion'){
+      Animations.GutterStateMotion();
+    }else{
+      try {
+        let args = [].slice.call(arguments).splice(2);
+        let namespaces = functionName.split(".");
+        let func = namespaces.pop();
+        for (let i = 0; i < namespaces.length; i++) {
+          context = context[namespaces[i]];
+        }
+        return context[func].apply(context, args);
+      } catch (e) {
+        this.ExecuteFunctionSimple(functionName);
+        console.log(e,functionName,window[functionName]);
+        Flash.Build({
+          type: 'error',
+          title: 'EXECUTION ERROR',
+          message: 'A Function was unable to execute due to an unkown error',
+          delay: 10000
+        })
       }
-      return context[func].apply(context, args);
-    } catch (e) {
-      console.log(e);
+    }
+  },
+  ExecuteFunctionSimple:function(fn){
+    try {
+      let codeToExecute = window[fn];
+      let tmpFunc = new Function(codeToExecute);
+      tmpFunc();
+      console.log(fn+' has been executed',tmpFunc);
+    }catch(e){
+      console.log(e,fn);
       Flash.Build({
         type: 'error',
         title: 'EXECUTION ERROR',
@@ -163,6 +185,9 @@ export const Assistants = {
     http.open('HEAD', url, false);
     http.send();
     return http.status !== 404;
+  },
+  PiklWrapper:function() {
+    $(Config.defaults.domRoot).contents().wrapAll('<section role="content" pikl-has-gutter="false" class="dill">');
   },
   RegisterEvents: function (obj) {
     if (typeof obj === 'object') {

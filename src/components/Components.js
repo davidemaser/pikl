@@ -108,7 +108,7 @@ export const Components = {
       _this.target.remove();
     }
     $(Config.defaults.domRoot).on('click', '.pikl.__gutter_button', function () {
-      Assistants.ExecuteFunctionByName('Animations.GutterStateMotion', window);
+      Assistants.ExecuteFunctionByName('Animations.GutterStateMotion()', window);
     });
     Log.Write('gutter', {event: 'components', response: _this, completed: true});
   },
