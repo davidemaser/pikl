@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" pikl-use="json" pikl-src="source.json">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body pikl="true">
+<pikl is="data" bind="features">{french}</pikl>
+<pikl is="data" bind="limits">{name}{#comma}</pikl>
+<pikl>{@calc}{#round}228{@divide}(10{@times}3){@add}186{@minus}(28{@divide}3){/calc}</pikl>
+<pikl>{@if day = 9 and month = 2 and year = 2017}Say this{@else}say this instead{/if}</pikl>
+<pikl>{@date}</pikl>
+<pikl>{@ajax}{@src=source.json,@index=features,@node=name,@repeat=true}{/ajax}</pikl>
+<pikl is="form">{@json}{"action":"action.php", "attributes":"class=\"this\" id=\"that\"", "name":"myForm", "items":[ { "element":"input", "event":{"handler":"click","function":"console.log('hello')"}, "type":"text", "name":"aName", "placeholder":"aPlaceholder", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"text", "name":"anotherName", "placeholder":"aPlaceholder", "value":"aValue" }, { "element":"textarea", "name":"aTextArea", "width":"20", "height":"5", "value":"aValue","label":"this is a label" }, { "element":"input", "type":"checkbox", "name":"aCheckbox", "value":"aValue","label":"check this","checked":"true" }, { "element":"select", "name":"thisName", "options":[ { "name":"hi", "value":"hello" }, { "name":"bye", "value":"goodbye" } ] } ] }{/json}</pikl>
+<!--
+this method gets the data from an external JSON file
+<pikl is="form">{@json}{@src=demoForm.json}{/json}</pikl>
+-->
+<pikl is="component">{@header cols=3,split=//}this// is// text{/header}</pikl>
+<pikl is="layout">--div[this is the div thing]
+    --p[this is,that is,this is not]*3
+    --section[here I would put my content]</pikl>
+<pikl is="list">{@name="newlist",class="bcfg",id="aaaa"}{@item}{#link url="theurl.html" target=""}thingy{/link} bob{/item}{@item}woopdy doo{/item}</pikl>
+<pikl is="component">{@modal type=default}{@json}{"name":"modal_name","components":{"title":"My Title","body":"Body text. Can contain HTML","buttons":[{"label":"I accept","type":"confirm","event":""},{"label":"I refuse","type":"refuse","event":"close"}]}}{/json}{/modal}</pikl>
+<pikl is="component">{@gutter type=default,state=visible,button=true}<div class="">this is text</div>{/gutter}</pikl>
+<pikl is="template">{@button params=[repeat=3] attributes=[data-post=nit,data-lake=nop]}{#mods trim,rev}text{/button}
+    {@table params=[id=var,style=default,var=grid] rows=[]}{/table}
+    {@grid params=[style=default]}{/grid}
+    {@form.select params=[style=default,id=hello] options=[label=value,label2=value2]}{/form}</pikl>
+<pikl is="template">{@import model=newTemplate params=[fast=true,slow=false,up=left]}<div></div>{/import}</pikl>
+<pikl is="template">{@import model=button}<div></div>{/import}</pikl>
+<pikl is="component">{@image src=this/image.jpg,width=255,height=185,style=display:block;opacity:1.5}{/image}</pikl>
+<pikl is="parser" bind="line" name="lines">{"line":[{"title":"this","content":"something","other":""},{"title":"another EDGE","content":"something ELSE","other":"that this"}]}</pikl>
+<pikl is="component">{@nav type=default}{@json}{@ajax}{@src=items.json,@index=nav}{/ajax}{/json}{/nav}</pikl>
+
+</body>
+</html>
