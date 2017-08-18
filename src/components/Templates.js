@@ -31,7 +31,6 @@ export const Templates = {
   },
   HandleContent: function (obj, target) {
     let objArray = [], o, thisObj, code, t, to;
-    console.log(obj, target);
     if (typeof obj === 'object') {
       for (o in obj) {
         thisObj = obj[o];
@@ -48,14 +47,12 @@ export const Templates = {
               code = thisObj.code;
               for (to in thisObj) {
                 code = code.replace(`{{${to}}}`, thisObj[to]);
-                console.log(to, thisObj[to]);
               }
               objArray.push(code);
             }
           }
         }
       }
-      console.log(objArray);
     } else {
       Flash.Build({
         type: 'error',
@@ -98,7 +95,6 @@ export const Templates = {
                 _outputWrapper = _outputTemplate.split('{@each}')[0].replace('<', '').replace('>', '');
               } else {
                 if (typeof _this === 'object') {
-                  //console.log('inline not',o,obj[o],t,_this[t])
                   for (th in _this) {
                     _formattedString += `${_this[th][0]}="${_this[th][1]}" `;
                   }
@@ -113,12 +109,6 @@ export const Templates = {
                 _typeTemplate = `<${_outputWrapper}>${_formattedString}</${_outputWrapper}>`;
               }
             }
-            /*for(let m in _this){
-             console.log(m,_this,_this[m],typeof _this[m])
-             if(typeof _this[m] !== 'object'){
-             _typeTemplate = _typeTemplate.replace('{{'+m+'}}',Assistants.ReplaceHandle(m,_this[m]));
-             }
-             }*/
           }
         }
         _typeTemplate !== undefined && _typeTemplate !== '' ? this.DisplayContent(Assistants.Repeat(_typeTemplate, _repeat), target) : false;
