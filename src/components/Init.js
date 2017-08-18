@@ -3,7 +3,7 @@
  */
 import {Ajax} from '../classes/Ajax';
 
-export class Init{
+export class Pikl{
   constructor(){
     Init.Core();
   }
