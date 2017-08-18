@@ -122,8 +122,8 @@ export let Assistants = {
   },
   Date: function (string, type) {
     let currentData = new Date(), formatDate = {};
-    formatDate['day'] = currentData.getDate().toString().length == 1 ? parseInt('0' + currentData.getDate()) : currentData.getDate();
-    formatDate['month'] = (currentData.getMonth() + 1).toString().length == 1 ? parseInt('0' + (currentData.getMonth() + 1)) : currentData.getMonth() + 1;
+    formatDate['day'] = currentData.getDate().toString().length === 1 ? parseInt('0' + currentData.getDate()) : currentData.getDate();
+    formatDate['month'] = (currentData.getMonth() + 1).toString().length === 1 ? parseInt('0' + (currentData.getMonth() + 1)) : currentData.getMonth() + 1;
     formatDate['year'] = currentData.getFullYear();
     formatDate['hours'] = currentData.getHours();
     formatDate['minutes'] = currentData.getMinutes();

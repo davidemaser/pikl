@@ -34,43 +34,43 @@ export const Form = {
         for (o in obj) {
           tempObject = obj[o];
           formType = obj[o].element;
-          formItemID = obj[o].id !== undefined && obj[o].id !== '' ? ' id="' + obj[o].id + '"' : '';
-          formItemClass = obj[o].class !== undefined && obj[o].class !== '' ? ' class="' + obj[o].class + '"' : '';
+          formItemID = obj[o].id !== undefined && obj[o].id !== '' ? ` id="${obj[o].id}"` : '';
+          formItemClass = obj[o].class !== undefined && obj[o].class !== '' ? ` class="${obj[o].class}"` : '';
           if ($.inArray(formType, Form.closures) > -1) {
             if (obj[o].event !== undefined && typeof obj[o].event === 'object') {
               events[obj[o].name] = obj[o].event;
             }
-            string += obj[o].label !== undefined && obj[o].label !== '' ? '<label for="' + obj[o].name + '">' + obj[o].label + '</label>' : '';
+            string += obj[o].label !== undefined && obj[o].label !== '' ? `<label for="${obj[o].name}">${obj[o].label}</label>` : '';
             if (formType === 'input') {
               string += '<input';
               string += formItemID + formItemClass;
-              string += ' type="' + obj[o].type + '" name="' + obj[o].name + '"';
-              string += obj[o].placeholder !== undefined && obj[o].placeholder !== '' ? ' placeholder="' + obj[o].placeholder + '"' : '';
-              string += obj[o].value !== undefined && obj[o].value !== '' ? ' value="' + obj[o].value + '"' : '';
+              string += ` type="${obj[o].type}" name="${obj[o].name}"`;
+              string += obj[o].placeholder !== undefined && obj[o].placeholder !== '' ? ` placeholder="${obj[o].placeholder}"` : '';
+              string += obj[o].value !== undefined && obj[o].value !== '' ? ` value="${obj[o].value}"` : '';
               string += obj[o].checked !== undefined && obj[o].checked !== '' && obj[o].checked === 'true' ? ' checked' : '';
               string += '/>';
             } else if (formType === 'select') {
               string += '<select';
               string += formItemID + formItemClass;
-              string += ' name="' + obj[o].name + '">{{options}}</select>';
+              string += ` name="${obj[o].name}">{{options}}</select>`;
             } else if (formType === 'button') {
               string += '<button';
               string += formItemID + formItemClass;
-              string += ' name="' + obj[o].name + '">' + obj[o].value + '</button>';
+              string += ` name="${obj[o].name}">${obj[o].value}</button>`;
             } else if (formType === 'textarea') {
               string += '<textarea';
               string += formItemID + formItemClass;
-              string += ' name="' + obj[o].name + '"';
-              string += obj[o].width !== undefined && obj[o].width !== '' ? ' width="' + obj[o].width + '"' : '';
-              string += obj[o].height !== undefined && obj[o].height !== '' ? ' height="' + obj[o].height + '"' : '';
-              string += '>' + obj[o].value + '</textarea>';
+              string += ` name="${obj[o].name}"`;
+              string += obj[o].width !== undefined && obj[o].width !== '' ? ` width="${obj[o].width}"` : '';
+              string += obj[o].height !== undefined && obj[o].height !== '' ? ` height="${obj[o].height}"` : '';
+              string += `>${obj[o].value}</textarea>`;
             }
             for (t in tempObject) {
               if (typeof tempObject[t] === 'object') {
                 optionObject = tempObject[t];
                 optionString = '';
                 for (a in optionObject) {
-                  optionString += '<option name="' + optionObject[a].name + '">' + optionObject[a].value + '</option>';
+                  optionString += `<option name="${optionObject[a].name}">${optionObject[a].value}</option>`;
                 }
               }
             }

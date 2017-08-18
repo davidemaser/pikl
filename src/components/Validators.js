@@ -10,7 +10,7 @@ export const Validators = {
       Flash.Build({
         type: 'error',
         title: 'JSON Parse Error',
-        message: 'Unable to parse JSON ' + e,
+        message: `Unable to parse JSON ${e}`,
         delay: 10000
       })
     }

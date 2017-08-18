@@ -226,7 +226,7 @@ export class Content {
           }
           keyString = keyString.trim();
           keyString = keyString.slice(-1) === ',' ? keyString.substring(0, keyString.length - 1) : keyString;
-          $('<' + tag + '>' + keyString + '</' + tag + '>').insertBefore($(this));
+          $(`<${tag}>${keyString}</${tag}>`).insertBefore($(this));
           $(this).remove();
           break;
         case 'parser':
@@ -292,10 +292,10 @@ export class Content {
                 for (d in calc) {
                   if ($.inArray(calc[d], Config.DateConditions) > -1) {
                     if (Assistants.Comparison(dateUnit[calc[d]], calc[1], parseInt(calc[2]))) {
-                      $('<' + tag + '>' + conditionCase.true + '</' + tag + '>').insertBefore($(this));
+                      $(`${tag}${conditionCase.true}</${tag}>`).insertBefore($(this));
                       $(this).remove();
                     } else {
-                      $('<' + tag + '>' + conditionCase.false + '</' + tag + '>').insertBefore($(this));
+                      $(`${tag}${conditionCase.false}</${tag}>`).insertBefore($(this));
                       $(this).remove();
                     }
                   }
@@ -309,7 +309,7 @@ export class Content {
                 calcString = targetContent.replace('{@calc}', '').replace('{/calc}', '');
                 if (calcString.indexOf('{#') > -1) {
                   calcMath = calcString.split('{#')[1].split('}')[0];
-                  calcString = calcString.replace('{#' + calcMath + '}', '');
+                  calcString = calcString.replace(`{#${calcMath}}`, '');
                 }
                 calcObject.multiply = {input: 'times', output: '*'};
                 calcObject.divide = {input: 'divide', output: '/'};
@@ -317,10 +317,10 @@ export class Content {
                 calcObject.minus = {input: 'minus', output: '-'};
                 calcObject.add = {input: 'add', output: '+'};
                 for (c in calcObject) {
-                  calcString = calcString.replace(new RegExp('{@' + calcObject[c].input + '}', 'g'), calcObject[c].output);
+                  calcString = calcString.replace(new RegExp(`{@${calcObject[c].input}}`, 'g'), calcObject[c].output);
                 }
                 calcMath = $.inArray(calcMath, mathOperators) ? calcMath : null;
-                $('<' + tag + '>' + Assistants.Calculate(calcString, calcMath || null) + '</' + tag + '>').insertBefore($(this));
+                $(`${tag}${Assistants.Calculate(calcString, calcMath || null)}</${tag}>`).insertBefore($(this));
                 Log.Write('calc', {event: 'Calculation', response: calcObject, completed: true});
               } catch (e) {
                 /*
@@ -329,7 +329,7 @@ export class Content {
                  log an error
                  */
                 try {
-                  $('<' + tag + '>' + Assistants.Calculate(calcString) + '</' + tag + '>').insertBefore($(this));
+                  $(`<${tag}>${Assistants.Calculate(calcString)}</${tag}>`).insertBefore($(this));
                 } catch (e) {
                   Log.Write('calc', {event: 'Calculation', response: calcObject, completed: false});
                 }
@@ -338,7 +338,7 @@ export class Content {
               break;
             case 'date':
               dateString = targetContent.replace('{@date}', '').replace('{/date}', '');
-              $('<' + tag + '>' + Assistants.Date(true, 'date') + '</' + tag + '>').insertBefore($(this));
+              $(`<${tag}>${Assistants.Date(true, 'date')}</${tag}>`).insertBefore($(this));
               $(this).remove();
               break;
             case 'ajax':
@@ -354,7 +354,7 @@ export class Content {
                     returnedData += ajaxObject.node !== undefined && ajaxObject.node !== '' ? result[r][ajaxObject.node] !== undefined ? result[r][ajaxObject.node] + ' ' : '' : result[r] + ' ';
                   }
                 }
-                $('<' + tag + '>' + returnedData + '</' + tag + '>').insertBefore($(_ajaxTarget));
+                $(`<${tag}>${returnedData}</${tag}>`).insertBefore($(_ajaxTarget));
                 $(_ajaxTarget).remove();
                 Log.Write('ajax', {event: 'AJAX', response: returnedData || null, completed: true});
               }).fail(function () {

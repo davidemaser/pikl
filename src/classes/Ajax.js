@@ -13,9 +13,9 @@ export class Ajax{
   }
   Json() {
     let ajaxCallUrl;
-    let useFormat = $('html').attr('pikl-use');
-    let useSource = $('html').attr('pikl-src');
-    if (useFormat !== undefined && useFormat == 'json') {
+    let useFormat = $(Config.defaults.dom.root).attr('pikl-use');
+    let useSource = $(Config.defaults.dom.root).attr('pikl-src');
+    if (useFormat !== undefined && useFormat === 'json') {
       if (useSource !== undefined && useSource !== '') {
         ajaxCallUrl = Config.Ajax.root+useSource || Config.Ajax.default;
       } else {
@@ -47,10 +47,10 @@ export class Ajax{
          html for Pikl template objects
          */
         $.when(Assistants.PiklWrapper()).done(function () {
-          new Content('[pikl="true"]', 'fr');
+          new Content(Config.defaults.pikl.wrapper, 'fr');
         }).done(function () {
-          $('[pikl="true"]').addClass('loaded');
-          console.log('pikl is running');//herere
+          $(Config.defaults.pikl.wrapper).addClass('loaded');
+          console.log('pikl is running');
         });
       }
     });

@@ -38,7 +38,7 @@ export const Templates = {
         if (thisObj.code !== undefined) {
           code = thisObj.code;
           for (t in thisObj) {
-            code = code.replace('{{' + t + '}}', thisObj[t]);
+            code = code.replace(`{{${t}}}`, thisObj[t]);
           }
           objArray.push(code);
         } else {
@@ -47,7 +47,7 @@ export const Templates = {
             if (typeof thisObj === 'object') {
               code = thisObj.code;
               for (to in thisObj) {
-                code = code.replace('{{' + to + '}}', thisObj[to]);
+                code = code.replace(`{{${to}}}`, thisObj[to]);
                 console.log(to, thisObj[to]);
               }
               objArray.push(code);
@@ -82,10 +82,10 @@ export const Templates = {
           for (t in _this) {
             if (typeof _this[t] !== 'object') {
               if (Templates.Inline[t] === undefined) {
-                _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _this[t]);
+                _typeTemplate = _typeTemplate.replace(`{{${t}}}`, _this[t]);
               } else {
                 _inlineObj = Assistants.ReplaceHandle(t, _this[t]);
-                _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _inlineObj);
+                _typeTemplate = _typeTemplate.replace(`{{${t}}}`, _inlineObj);
               }
             } else {
               _parent = o;
@@ -100,17 +100,17 @@ export const Templates = {
                 if (typeof _this === 'object') {
                   //console.log('inline not',o,obj[o],t,_this[t])
                   for (th in _this) {
-                    _formattedString += _this[th][0] + '="' + _this[th][1] + '" ';
+                    _formattedString += `${_this[th][0]}="${_this[th][1]}" `;
                   }
                 }
-                _typeTemplate = _typeTemplate.replace('{{' + t + '}}', _formattedString);
+                _typeTemplate = _typeTemplate.replace(`{{${t}}}`, _formattedString);
               }
               if (_this.options !== undefined) {
                 options = _this.options;
                 for (op in options) {
                   _formattedString += _outputString.replace('{{value}}', options[op][1]).replace('{{label}}', options[op][0]);
                 }
-                _typeTemplate = '<' + _outputWrapper + '>' + _formattedString + '</' + _outputWrapper + '>';
+                _typeTemplate = `<${_outputWrapper}>${_formattedString}</${_outputWrapper}>`;
               }
             }
             /*for(let m in _this){
@@ -162,7 +162,7 @@ export const Templates = {
     if (obj.indexOf('params') > -1) {
       templateParams = obj.split('params=[')[1].split(']')[0].split(',');
       //remove the params string after we've imported it
-      obj = obj.replace(' params=[' + templateParams + ']', '');
+      obj = obj.replace(` params=[${templateParams}]`, '');
     }
     templateModel = obj.split('model=')[1].split('}')[0];
     exists = Templates.Collection[templateModel] !== undefined;
@@ -180,12 +180,12 @@ export const Templates = {
         Templates.Collection[templateModel]['code'] = templateContent;
       }
       //new template objects have been imported into the Templates.Collection object. Call them by name
-      console.log('Model built having name ' + templateModel, Templates.Collection[templateModel]);
+      console.log(`Model built having name ${templateModel}`, Templates.Collection[templateModel]);
     } else {
       Flash.Build({
         type: 'warning',
         title: 'Warning',
-        message: 'The template named "' + templateModel + '" already exists in the collection. Please chose another one',
+        message: `The template named "${templateModel}" already exists in the collection. Please chose another one`,
         delay: 10000
       });
     }

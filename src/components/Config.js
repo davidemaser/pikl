@@ -10,6 +10,12 @@ export const Config = {
   brackets: '{}',
   comments: '{..}',
   defaults: {
+    pikl:{
+      wrapper:'[pikl="true"]'
+    },
+    dom:{
+      root:'html'
+    },
     tplTag: {
       element: 'pikl',
       replacement: 'div'
